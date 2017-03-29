@@ -3,13 +3,31 @@
 <head>
 	<title>RentApp</title>
 
+	<style type = "text/css">
+		html, body { height: 100%; margin: 0; padding: 0; }
+		#map { height: 100%; }
+    </style>
+
 	<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular.min.js"></script>
-
-	<script src = "app/app.js"></script>
 	<script async defer src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBJ7mdbXVgAnM-jB52mb8JkgFz19xrOHl0&callback=initMap">
-    </script>
-</head>
-<body>
+	</script>
 
+	<script src = "app/js/app.js"></script>
+	<script src = "app/js/mainController.js"></script>
+	<script type = "text/javascript">
+		var map;
+
+		var initMap = function()
+		{
+			map = new google.maps.Map( document.getElementById( "map" ), 
+			{
+				center: { lat: -34.397, lng: 150.644 },
+				zoom: 8
+			} );
+		}
+	</script>
+</head>
+<body ng-controller = "MainController">
+	<div id = "map"></div>
 </body>
 </html>
