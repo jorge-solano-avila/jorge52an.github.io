@@ -3,10 +3,7 @@
 <head>
 	<title>RentApp</title>
 
-	<style type = "text/css">
-		html, body { height: 100%; margin: 0; padding: 0; }
-		#map { height: 80%; margin: 5% 5% 5% 30%; }
-    </style>
+	<link rel = "stylesheet" href = "app/css/main.css">
 
 	<script src = "https://ajax.googleapis.com/ajax/libs/angularjs/1.6.3/angular.min.js"></script>
 	<script async defer src = "https://maps.googleapis.com/maps/api/js?key=AIzaSyBJ7mdbXVgAnM-jB52mb8JkgFz19xrOHl0&callback=initMap">
@@ -16,15 +13,40 @@
 	<script src = "app/js/mainController.js"></script>
 	<script type = "text/javascript">
 		var map;
+		
+		var position = {
+			lat: 41.8708,
+			lng: -87.6505
+		};
 
 		var initMap = function()
 		{
 			map = new google.maps.Map( document.getElementById( "map" ), 
 			{
-				center: { lat: 41.8708, lng: -87.6505 },
-				zoom: 8
+				center: position,
+				zoom: 15
+			} );
+
+			var marker = new google.maps.Marker(
+			{
+				position: position,
+				animation: google.maps.Animation.DROP,
+				map: map,
+				title: "Department of Computer Science – University of Illinois, Chicago"
+			} );
+
+			var title = new google.maps.InfoWindow( 
+			{
+				content: "Department of Computer Science, University of Illinois, Chicago"
+			} );
+
+			marker.addListener( "click", function()
+			{
+				title.open( map, marker );
 			} );
 		}
+
+		initMap();
 	</script>
 </head>
 <body ng-controller = "MainController">
