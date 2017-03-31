@@ -17,21 +17,21 @@ This project shows a map with a marker indicating the actual position. This appl
 
 ## Map view
 
-* _Y_ Basic Map with specific location
-* _N_ Markers for location of markets
-* _N_ Labels for market's names
-* _N_ InfoWindow to show detail information of a market
-* _N_ Any other cover on the map
+* __Y__ Basic Map with specific location
+* __N__ Markers for location of markets
+* __N__ Labels for market's names
+* __N__ InfoWindow to show detail information of a market
+* __N__ Any other cover on the map
 
 ## Data Visualization
 
-* _N_ Use Graph? What is the type?
-* _N_ Any interaction available on the graph? List them
+* __N__ Use Graph? What is the type?
+* __N__ Any interaction available on the graph? List them
 
 ## Interaction Form
 
-* _N_ Any information output? list them
-* _N_ Any operation option (filters)? List them
-* _N_ Any information input? List them
-* _N_ Interaction with Map? List them
-* _N_ Interaction with data visualization? List them
+* __N__ Any information output? list them
+* __N__ Any operation option (filters)? List them
+* __N__ Any information input? List them
+* __N__ Interaction with Map? List them
+* __N__ Interaction with data visualization? List them
