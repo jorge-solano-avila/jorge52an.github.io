@@ -1,8 +1,7 @@
-angular.module( "RentApp", [], function()
+angular.module( "RentApp", ["ngMap"], function()
 {
 
 } )
-.config( function(  )
+.config( function()
 {
-
 } );
