@@ -8,37 +8,53 @@ angular.module( "RentApp" )
 	{
 		$scope.map = map;
 		$scope.setCenter();
+		$scope.showAffordableRentalHousing();
 	} );
 
 	$scope.setCenter = function()
 	{
+		var title = "Department of Computer Science - University of Illinois, Chicago";
 		$scope.map.setCenter( $scope.actualPosition );
+
+		$scope.addMarker( $scope.initialPosition[0], $scope.initialPosition[1], title );
+	}
+
+	$scope.addMarker = function( latitude, longitude, title )
+	{
+		var position = new google.maps.LatLng( latitude, longitude );
 
 		var marker = new google.maps.Marker(
 		{
-			position: $scope.actualPosition,
+			position: position,
 			animation: google.maps.Animation.DROP,
 			map: $scope.map,
-			title: "Department of Computer Science - University of Illinois, Chicago"
+			title: title
 		} );
 
-		var title = new google.maps.InfoWindow( 
+		var infoWindow = new google.maps.InfoWindow( 
 		{
-			content: "Department of Computer Science - University of Illinois, Chicago"
+			content: title
 		} );
 
 		marker.addListener( "click", function()
 		{
-			title.open( $scope.map, marker );
+			infoWindow.open( $scope.map, marker );
 		} );
 	}
 
-	PositionService.getAffordableRentalHousing().then( function( response )
+	$scope.showAffordableRentalHousing = function()
 	{
-		console.log( response.data.data );
-	} )
-	.catch( function( response )
-	{
-		console.log( "Error" );
-	} );
+		PositionService.getAffordableRentalHousing().then( function( response )
+		{
+			var data = response.data.data;
+			for( var i = 0; i < data.length; ++i )
+			{
+				$scope.addMarker( data[i][19], data[i][20], data[i][12] );
+			}
+		} )
+		.catch( function( response )
+		{
+			console.log( "Error" );
+		} );
+	}
 } );
