@@ -1,5 +1,5 @@
 angular.module( "RentApp" )
-.service( "PositionService", function()
+.service( "PositionService", function( $http )
 {
 	this.getAffordableRentalHousing = function()
 	{

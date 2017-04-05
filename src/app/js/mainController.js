@@ -1,5 +1,5 @@
 angular.module( "RentApp" )
-.controller( "MainController", function( $scope, NgMap )
+.controller( "MainController", function( $scope, NgMap, PositionService )
 {
 	$scope.initialPosition = [41.8708, -87.6505];
 	$scope.actualPosition = new google.maps.LatLng( $scope.initialPosition[0], $scope.initialPosition[1] );
@@ -32,4 +32,13 @@ angular.module( "RentApp" )
 			title.open( $scope.map, marker );
 		} );
 	}
+
+	PositionService.getAffordableRentalHousing().then( function( response )
+	{
+		console.log( response.data.data );
+	} )
+	.catch( function( response )
+	{
+		console.log( "Error" );
+	} );
 } );
