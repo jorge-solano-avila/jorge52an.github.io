@@ -16,16 +16,17 @@ angular.module( "RentApp" )
 		var title = "Department of Computer Science - University of Illinois, Chicago";
 		$scope.map.setCenter( $scope.actualPosition );
 
-		$scope.addMarker( $scope.initialPosition[0], $scope.initialPosition[1], title );
+		$scope.addMarker( "", $scope.initialPosition[0], $scope.initialPosition[1], title );
 	}
 
-	$scope.addMarker = function( latitude, longitude, title )
+	$scope.addMarker = function( label, latitude, longitude, title )
 	{
 		var position = new google.maps.LatLng( latitude, longitude );
 
 		var marker = new google.maps.Marker(
 		{
 			position: position,
+			label: label,
 			animation: google.maps.Animation.DROP,
 			map: $scope.map,
 			title: title
@@ -49,7 +50,9 @@ angular.module( "RentApp" )
 			var data = response.data.data;
 			for( var i = 0; i < data.length; ++i )
 			{
-				$scope.addMarker( data[i][19], data[i][20], data[i][12] );
+				if( data[i][19] > 41.857057 && data[i][19] < 41.897574 &&
+					data[i][20] > -87.686785 && data[i][20] < -87.616983 )
+					$scope.addMarker( "A", data[i][19], data[i][20], data[i][12] );
 			}
 		} )
 		.catch( function( response )
