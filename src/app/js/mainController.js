@@ -26,7 +26,7 @@ angular.module( "RentApp" )
 		{
 			content: "Department of Computer Science - University of Illinois, Chicago"
 		} );
-	 
+
 		marker.addListener( "click", function()
 		{
 			title.open( $scope.map, marker );
