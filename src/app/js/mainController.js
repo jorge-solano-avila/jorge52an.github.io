@@ -9,6 +9,7 @@ angular.module( "RentApp" )
 		$scope.map = map;
 		$scope.setCenter();
 		$scope.showAffordableRentalHousing();
+		$scope.showCrimes();
 	} );
 
 	$scope.setCenter = function()
@@ -53,6 +54,24 @@ angular.module( "RentApp" )
 				if( data[i][19] > 41.857057 && data[i][19] < 41.897574 &&
 					data[i][20] > -87.686785 && data[i][20] < -87.616983 )
 					$scope.addMarker( "A", data[i][19], data[i][20], data[i][12] );
+			}
+		} )
+		.catch( function( response )
+		{
+			console.log( "Error" );
+		} );
+	}
+
+	$scope.showCrimes = function()
+	{
+		PositionService.getCrimes().then( function( response )
+		{
+			var data = response.data;
+			for( var i = 0; i < data.length; ++i )
+			{
+				if( data[i][258138743] > 41.857057 && data[i][258138743] < 41.897574 &&
+					data[i][258138744] > -87.686785 && data[i][258138744] < -87.616983 )
+					$scope.addMarker( "S", data[i][258138743], data[i][258138744], data[i][258138727] );
 			}
 		} )
 		.catch( function( response )
