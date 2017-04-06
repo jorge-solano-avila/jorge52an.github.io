@@ -24,7 +24,7 @@
 * Latitude, longitude and address 
 * About 200 data
 
-* __N__ Do you use the mandatory dataset Climate Data Online?
+__N__ Do you use the mandatory dataset Climate Data Online?
 
 ## Brief Description
 
