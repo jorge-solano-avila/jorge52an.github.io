@@ -1,6 +1,12 @@
 angular.module( "RentApp" )
-.controller( "MainController", function( $scope, NgMap, PositionService )
+.controller( "MainController", function( $scope, $mdSidenav, NgMap, PositionService )
 {
+	$scope.rentalHousing = false;
+	$scope.crimes = false;
+
+	$scope.rentalHousingMarkers = [];
+	$scope.crimeMarkers = [];
+
 	$scope.initialPosition = [41.8708, -87.6505];
 	$scope.actualPosition = new google.maps.LatLng( $scope.initialPosition[0], $scope.initialPosition[1] );
 
@@ -8,8 +14,9 @@ angular.module( "RentApp" )
 	{
 		$scope.map = map;
 		$scope.setCenter();
-		$scope.showAffordableRentalHousing();
-		$scope.showCrimes();
+
+		//$scope.rentalHousing = true;
+		//$scope.crimes = true;
 	} );
 
 	$scope.setCenter = function()
@@ -42,6 +49,15 @@ angular.module( "RentApp" )
 		{
 			infoWindow.open( $scope.map, marker );
 		} );
+
+		return marker;
+	}
+
+	$scope.showFilters = function()
+	{
+		$mdSidenav( "left" ).toggle().then( function()
+		{
+        } );
 	}
 
 	$scope.showAffordableRentalHousing = function()
@@ -53,7 +69,10 @@ angular.module( "RentApp" )
 			{
 				if( data[i][19] > 41.857057 && data[i][19] < 41.897574 &&
 					data[i][20] > -87.686785 && data[i][20] < -87.616983 )
-					$scope.addMarker( "A", data[i][19], data[i][20], data[i][12] );
+				{
+					var marker = $scope.addMarker( "A", data[i][19], data[i][20], data[i][12] );
+					$scope.rentalHousingMarkers.push( marker );
+				}
 			}
 		} )
 		.catch( function( response )
@@ -71,7 +90,10 @@ angular.module( "RentApp" )
 			{
 				if( data[i][258138743] > 41.857057 && data[i][258138743] < 41.897574 &&
 					data[i][258138744] > -87.686785 && data[i][258138744] < -87.616983 )
-					$scope.addMarker( "S", data[i][258138743], data[i][258138744], data[i][258138727] );
+				{
+					var marker = $scope.addMarker( "S", data[i][258138743], data[i][258138744], data[i][258138727] );
+					$scope.crimeMarkers.push( marker );
+				}
 			}
 		} )
 		.catch( function( response )
@@ -79,4 +101,34 @@ angular.module( "RentApp" )
 			console.log( "Error" );
 		} );
 	}
+
+	$scope.$watch( "rentalHousing", function( newValue, oldValue )
+	{
+		if( newValue )
+			$scope.showAffordableRentalHousing();
+		else if( newValue !== oldValue )
+		{
+			for( var i = 0; i < $scope.rentalHousingMarkers.length; ++i )
+			{
+				var marker = $scope.rentalHousingMarkers[i];
+				marker.setMap( null );
+			}
+			$scope.rentalHousingMarkers = [];
+		}
+	} );
+
+	$scope.$watch( "crimes", function( newValue, oldValue )
+	{
+		if( newValue )
+			$scope.showCrimes();
+		else if( newValue !== oldValue )
+		{
+			for( var i = 0; i < $scope.crimeMarkers.length; ++i )
+			{
+				var marker = $scope.crimeMarkers[i];
+				marker.setMap( null );
+			}
+			$scope.$scope.crimeMarkers = [];
+		}
+	} );
 } );
