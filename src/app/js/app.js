@@ -1,8 +1,6 @@
-angular.module( "RentApp", [], function()
+angular.module( "RentApp", ["ngAnimate", "ngAria", "ngMaterial", "ngMap"], function()
+{} )
+.config( function( $mdIconProvider )
 {
-
-} )
-.config( function(  )
-{
-
+	$mdIconProvider.defaultFontSet( "material-icons" );
 } );
