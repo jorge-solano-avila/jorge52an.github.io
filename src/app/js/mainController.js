@@ -100,6 +100,14 @@ angular.module( "RentApp" )
 		{
 			console.log( "Error" );
 		} );
+		PositionService.getRentalHousing().then( function( response )
+		{
+			console.log( response );
+		} )
+		.catch( function( response )
+		{
+			console.log( response );
+		} );
 	}
 
 	$scope.$watch( "rentalHousing", function( newValue, oldValue )

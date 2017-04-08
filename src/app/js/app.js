@@ -1,4 +1,4 @@
-angular.module( "RentApp", ["ngAnimate", "ngAria", "ngMaterial", "ngMap"], function()
+angular.module( "RentApp", ["ngAnimate", "ngAria", "ngMaterial", "ngMap", "xml"], function()
 {} )
 .config( function( $mdIconProvider )
 {
