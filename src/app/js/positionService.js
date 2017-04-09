@@ -1,12 +1,13 @@
 angular.module( "RentApp" )
 .service( "PositionService", function( $http )
 {
-	this.ZPIDs = [3874355, 2102438964, 2100595411, 2096615389, 87718017, 87707655, 87693778, 2107458332, 2098735362, 2094909459, 
-		60270592, 2097948818, 2095254832, 2094930095, 60203847, 62013380, 60270091, 2112604850];
+	this.tokenCDO = "bkkpluExMGYJSXoVxxWyKuTwCQPNIHHN";
+	this.zmwsId = "X1-ZWz199m9tw1rez_3pg0i";
+	this.zpids = [3874355, 2100595411, 87718017, 87707655, 87693778, 60270592, 60203847, 62013380, 60270091, 2112604850];
 
 	this.getRentalHousing = function( zpid )
 	{
-		return $http.get( "http://campuapi.azurewebsites.net/Home/ZillowApi?url=GetZestimate.htm?zws-id=X1-ZWz199m9tw1rez_3pg0i$rentzestimate=true$zpid=" + zpid );
+		return $http.get( "http://localhost:3000/zillow-api?url=GetZestimate.htm&zws-id=X1-ZWz199m9tw1rez_3pg0i&rentzestimate=true&zpid=" + zpid );
 	}
 
 	this.getAffordableRentalHousing = function()
