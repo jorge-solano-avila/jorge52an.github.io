@@ -2,6 +2,7 @@
 <html ng-app = "RentApp">
 <head>
 	<title>RentApp</title>
+	<meta name = "viewport" content = "initial-scale=1, maximum-scale=1, user-scalable=no">
 
 	<link rel = "stylesheet" href = "app/css/main.css">
 	<link rel = "stylesheet" href = "https://fonts.googleapis.com/icon?family=Material+Icons">
@@ -16,37 +17,59 @@
 	<script src = "https://rawgit.com/abdmob/x2js/master/xml2json.min.js"></script>
 	<script src = "https://rawgit.com/johngeorgewright/angular-xml/develop/angular-xml.min.js"></script>
 
+	<script type ="text/ng-template" id = "loading.html">
+		<md-dialog class = "custom-loading-dialog">
+			<div layout = "row" layout-sm = "column" layout-align = "center center">
+				<md-progress-circular md-mode = "indeterminate"></md-progress-circular>
+			</div>
+		</md-dialog>
+	</script>
+
 	<script src = "app/js/app.js"></script>
 	<script src = "app/js/mainController.js"></script>
 	<script src = "app/js/positionService.js"></script>
+	<script src = "app/js/loadingService.js"></script>
 </head>
 <body ng-controller = "MainController" ng-cloak>
 	<md-toolbar class = "md-primary">
 		<div class = "md-toolbar-tools">
-			<md-button class = "md-icon-button" ng-click = "showFilters()">
+			<md-button class = "md-icon-button" ng-click = "showFilters()" hide-gt-md>
 				<md-icon>menu</md-icon>
 			</md-button>
 
 			<h2 flex md-truncate>RentApp</h2>
 		</div>
 	</md-toolbar>
-		
-	<md-sidenav class = "md-sidenav-left md-whiteframe-4dp" md-component-id = "left">
-		<md-toolbar class = "md-primary">
-			<h1 class = "md-toolbar-tools">Filters</h1>
-		</md-toolbar>
-		<md-content layout-padding>
-			<md-switch class = "md-primary" ng-model = "rentalHousing">
-				Affordable rental housing
-			</md-switch>
-			<md-switch class = "md-primary" ng-model = "crimes">
-				Crimes
-			</md-switch>
-		</md-content>
-	</md-sidenav>
 
-	<md-content class = "md-padding">
-		<ng-map id = "map"></ng-map>
-	</md-content>
+	<section layout = "row" flex>
+		<md-sidenav class = "md-sidenav-left md-whiteframe-4dp" md-is-locked-open = "$mdMedia( 'gt-md' )" md-component-id = "left">
+			<md-toolbar class = "md-primary">
+				<h1 class = "md-toolbar-tools">Filters</h1>
+			</md-toolbar>
+			<md-content layout-padding>
+				<h3>Rent</h3>
+				<md-slider-container>
+					<md-slider class = "md-primary" flex min = "0" max = "{{ maxRent }}" ng-model = "filters.rent">
+					</md-slider>
+					<md-input-container>
+						<input flex type = "number" ng-model = "filters.rent">
+					</md-input-container>
+				</md-slider-container>
+			</md-content>
+			<md-content layout = "row">
+				<md-content layout-align = "center center">
+					<md-button ng-click = "closeFilters()" class = "md-raised md-primary" hide-gt-md>
+						Close
+					</md-button>
+					<md-button ng-click = "filter()" class = "md-raised md-primary">
+						Filter
+					</md-button>
+				</md-content>
+			</md-content>
+		</md-sidenav>
+		<md-content class = "md-padding">
+			<ng-map id = "map"></ng-map>
+		</md-content>
+	</section>
 </body>
 </html>

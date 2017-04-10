@@ -8,5 +8,12 @@ html, body
 #map
 {
 	height: 580px;
-	width: 100%;
+	width: 950px;
+}
+
+.custom-loading-dialog
+{
+	background-color: transparent;
+	box-shadow: none;
+	overflow: hidden;
 }
