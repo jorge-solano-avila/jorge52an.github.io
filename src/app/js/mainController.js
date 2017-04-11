@@ -6,6 +6,7 @@ angular.module( "RentApp" )
 	$scope.rentalHousingMarkers = [];
 	$scope.crimeMarkers = [];
 	$scope.maxRent = 0;
+	$scope.minRent = Infinity;
 
 	$scope.filters = {
 		rent: 0
@@ -98,7 +99,7 @@ angular.module( "RentApp" )
 		LoadingService.showLoading();
 		$rootScope.loading = true;
 		for( var i = 0; i < $scope.rentalHousingMarkers.length; ++i )
-			if( $scope.rentalHousingMarkers[i].rent < $scope.filters.rent )
+			if( $scope.rentalHousingMarkers[i].rent <= $scope.filters.rent )
 				$scope.rentalHousingMarkers[i].marker.setMap( $scope.map );
 			else
 				$scope.rentalHousingMarkers[i].marker.setMap( null );
@@ -133,6 +134,8 @@ angular.module( "RentApp" )
 					var marker = $scope.addMarker( "A", latitude, longitude, address, values );
 					if( rentAmount > $scope.maxRent )
 						$scope.maxRent = rentAmount;
+					if( rentAmount < $scope.minRent )
+						$scope.minRent = rentAmount;
 					$scope.rentalHousingMarkers.push( marker );
 				}
 				i++;
