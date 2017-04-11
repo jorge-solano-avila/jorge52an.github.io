@@ -27,6 +27,7 @@
 
 	<script src = "app/js/app.js"></script>
 	<script src = "app/js/mainController.js"></script>
+	<script src = "app/js/positionController.js"></script>
 	<script src = "app/js/positionService.js"></script>
 	<script src = "app/js/loadingService.js"></script>
 </head>
@@ -47,8 +48,9 @@
 				<h1 class = "md-toolbar-tools">Filters</h1>
 			</md-toolbar>
 			<md-content layout-padding>
-				<h3>Rent ($ per month)</h3>
+				<h3>Maximum Rent (USD$ per month)</h3>
 				<md-slider-container>
+					<span>0</span>
 					<md-slider class = "md-primary" flex min = "0" max = "{{ maxRent }}" ng-model = "filters.rent">
 					</md-slider>
 					<md-input-container>

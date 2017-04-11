@@ -1,5 +1,5 @@
 angular.module( "RentApp" )
-.controller( "MainController", function( $scope, $rootScope, $mdSidenav, NgMap, PositionService, LoadingService )
+.controller( "MainController", function( $scope, $rootScope, $mdSidenav, $mdDialog, NgMap, PositionService, LoadingService )
 {
 	LoadingService.showLoading();
 	$rootScope.loading = true;
@@ -50,7 +50,26 @@ angular.module( "RentApp" )
 
 		marker.addListener( "click", function()
 		{
-			infoWindow.open( $scope.map, marker );
+			if( label === "" )
+				infoWindow.open( $scope.map, marker );
+			else
+				$mdDialog.show(
+				{
+					controller: "PositionController",
+					templateUrl: "app/html/position.html",
+					parent: angular.element( document.body ),
+					clickOutsideToClose: true,
+					fullscreen: true,
+					locals: values
+				} )
+				.then( function()
+				{
+
+				} )
+				.catch( function()
+				{
+
+				} );
 		} );
 
 		values.marker = marker;
@@ -96,6 +115,7 @@ angular.module( "RentApp" )
 				if( response.data.zestimate.hasOwnProperty( "response" ) && response.data.zestimate.response.hasOwnProperty( "rentzestimate" ) )
 				{
 					var values = response.data.zestimate.response;
+					var link = values.links.homedetails;
 					var address = values.address.street;
 					var latitude = values.address.latitude;
 					var longitude = values.address.longitude;
@@ -104,7 +124,11 @@ angular.module( "RentApp" )
 					var rentCurrency = values.rentzestimate.amount._currency;
 					var rentUpdate = values.rentzestimate["last-updated"];
 					values = {
-						rent: rentAmount
+						link: link,
+						address: address,
+						zip: zip,
+						rent: rentAmount,
+						rentUpdate: rentUpdate
 					};
 					var marker = $scope.addMarker( "A", latitude, longitude, address, values );
 					if( rentAmount > $scope.maxRent )
