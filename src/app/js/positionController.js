@@ -1,6 +1,7 @@
 angular.module( "RentApp" )
-.controller( "PositionController", function( $scope, $mdDialog, address, link, zip, rent, rentUpdate )
+.controller( "PositionController", function( $scope, $mdDialog, distance, address, link, zip, rent, rentUpdate )
 {
+	$scope.distance = distance;
 	$scope.link = link;
 	$scope.address = address;
 	$scope.zip = zip;

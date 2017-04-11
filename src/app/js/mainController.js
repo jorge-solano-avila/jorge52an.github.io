@@ -5,15 +5,21 @@ angular.module( "RentApp" )
 	$rootScope.loading = true;
 	$scope.rentalHousingMarkers = [];
 	$scope.crimeMarkers = [];
-	$scope.maxRent = 0;
-	$scope.minRent = Infinity;
 
-	$scope.filters = {
-		rent: 0
+	$scope.rent = {
+		max: 0,
+		min: Infinity,
+		filter: 0
+	};
+
+	$scope.distance = {
+		max: 0,
+		min: Infinity,
+		filter: 0
 	};
 
 	$scope.initialPosition = [41.8708, -87.6505];
-	$scope.actualPosition = new google.maps.LatLng( $scope.initialPosition[0], $scope.initialPosition[1] );
+	$scope.universityPosition = new google.maps.LatLng( $scope.initialPosition[0], $scope.initialPosition[1] );
 
 	NgMap.getMap().then( function( map )
 	{
@@ -26,7 +32,7 @@ angular.module( "RentApp" )
 	$scope.setCenter = function()
 	{
 		var title = "Department of Computer Science - University of Illinois, Chicago";
-		$scope.map.setCenter( $scope.actualPosition );
+		$scope.map.setCenter( $scope.universityPosition );
 
 		$scope.addMarker( "", $scope.initialPosition[0], $scope.initialPosition[1], title, {} );
 	}
@@ -99,7 +105,8 @@ angular.module( "RentApp" )
 		LoadingService.showLoading();
 		$rootScope.loading = true;
 		for( var i = 0; i < $scope.rentalHousingMarkers.length; ++i )
-			if( $scope.rentalHousingMarkers[i].rent <= $scope.filters.rent )
+			if( $scope.rentalHousingMarkers[i].rent <= $scope.rent.filter &&
+				$scope.rentalHousingMarkers[i].distance <= $scope.distance.filter )
 				$scope.rentalHousingMarkers[i].marker.setMap( $scope.map );
 			else
 				$scope.rentalHousingMarkers[i].marker.setMap( null );
@@ -124,7 +131,10 @@ angular.module( "RentApp" )
 					var rentAmount = parseInt( values.rentzestimate.amount.toString() );
 					var rentCurrency = values.rentzestimate.amount._currency;
 					var rentUpdate = values.rentzestimate["last-updated"];
+					var rentPosition = new google.maps.LatLng( latitude, longitude );
+					var distance = parseInt( google.maps.geometry.spherical.computeDistanceBetween( $scope.universityPosition, rentPosition ) );
 					values = {
+						distance: distance,
 						link: link,
 						address: address,
 						zip: zip,
@@ -132,16 +142,21 @@ angular.module( "RentApp" )
 						rentUpdate: rentUpdate
 					};
 					var marker = $scope.addMarker( "A", latitude, longitude, address, values );
-					if( rentAmount > $scope.maxRent )
-						$scope.maxRent = rentAmount;
-					if( rentAmount < $scope.minRent )
-						$scope.minRent = rentAmount;
+					if( rentAmount > $scope.rent.max )
+						$scope.rent.max = rentAmount;
+					if( rentAmount < $scope.rent.min )
+						$scope.rent.min = rentAmount;
+					if( distance > $scope.distance.max )
+						$scope.distance.max = distance;
+					if( distance < $scope.distance.min )
+						$scope.distance.min = distance;
 					$scope.rentalHousingMarkers.push( marker );
 				}
 				i++;
 				if( i === PositionService.zpids.length )
 				{
-					$scope.filters.rent = $scope.maxRent;
+					$scope.rent.filter = $scope.rent.max;
+					$scope.distance.filter = $scope.distance.max;
 					$rootScope.loading = false;
 				}
 			} )

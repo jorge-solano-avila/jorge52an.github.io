@@ -50,11 +50,21 @@
 			<md-content layout-padding>
 				<h3>Maximum Rent (USD$ per month)</h3>
 				<md-slider-container>
-					<span>{{ minRent }}</span>
-					<md-slider class = "md-primary" flex min = "{{ minRent }}" max = "{{ maxRent }}" ng-model = "filters.rent">
+					<span>{{ rent.min }}</span>
+					<md-slider class = "md-primary" flex min = "{{ rent.min }}" max = "{{ rent.max }}" ng-model = "rent.filter">
 					</md-slider>
 					<md-input-container>
-						<input flex type = "number" ng-model = "filters.rent">
+						<input flex type = "number" ng-model = "rent.filter">
+					</md-input-container>
+				</md-slider-container>
+
+				<h3>Maximum Distance (m)</h3>
+				<md-slider-container>
+					<span>{{ distance.min }}</span>
+					<md-slider class = "md-primary" flex min = "{{ distance.min }}" max = "{{ distance.max }}" ng-model = "distance.filter">
+					</md-slider>
+					<md-input-container>
+						<input flex type = "number" ng-model = "distance.filter">
 					</md-input-container>
 				</md-slider-container>
 			</md-content>
