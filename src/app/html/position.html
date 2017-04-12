@@ -1,0 +1,28 @@
+<md-dialog>
+	<md-toolbar>
+		<div class = "md-toolbar-tools">
+			<h2>{{ address }}</h2>
+			<span flex></span>
+			<md-button class = "md-icon-button" ng-click = "hide()">
+				<md-icon>close</md-icon>
+			</md-button>
+		</div>
+	</md-toolbar>
+	<md-dialog-content>
+		<div class="md-dialog-content">
+			<h2>Rent {{ rent | currency }}/month</h2>
+			<h4>Last updated: {{ rentUpdate | date }}</h3>
+			<h4>ZIP: {{ zip }}</h3>
+			<h4>Distance to university: {{ distance }} m</h3>
+		</div>
+	</md-dialog-content>
+	<md-dialog-actions layout = "row">
+		<md-button class = "md-raised md-primary" href = "{{ link }}" md-autofocus>
+			More on Zillow
+		</md-button>
+		<span flex></span>
+		<md-button class = "md-raised md-primary" ng-click = "hide()">
+			OK
+		</md-button>
+	</md-dialog-actions>
+</md-dialog>
