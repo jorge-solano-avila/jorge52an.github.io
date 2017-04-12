@@ -12,6 +12,10 @@
 * Address
 * Distances
 
+## Important
+
+This application runs with a server (lite-server)
+
 ## Description of the datasets and function design
 
 1. __Zillow API__
