@@ -4,7 +4,7 @@ angular.module( "RentApp" )
 	LoadingService.showLoading();
 	$rootScope.loading = true;
 	$scope.rentalHousingMarkers = [];
-	$scope.crimeMarkers = [];
+	$scope.markers = [];
 
 	$scope.rent = {
 		max: 0,
@@ -133,6 +133,22 @@ angular.module( "RentApp" )
 					var rentUpdate = values.rentzestimate["last-updated"];
 					var rentPosition = new google.maps.LatLng( latitude, longitude );
 					var distance = parseInt( google.maps.geometry.spherical.computeDistanceBetween( $scope.universityPosition, rentPosition ) );
+					var sum = 0.0001;
+					latitude = parseFloat( latitude );
+					while( true )
+					{
+						var exists = false;
+						for( var i = 0; i < $scope.markers.length; ++i )
+							if( parseFloat( $scope.markers[i].position.lat() ) === latitude )
+							{
+								exists = true;
+								latitude += sum;
+								break;
+							}
+						if( !exists )
+							break;
+					}
+					latitude = latitude.toString();
 					values = {
 						distance: distance,
 						link: link,
@@ -141,7 +157,7 @@ angular.module( "RentApp" )
 						rent: rentAmount,
 						rentUpdate: rentUpdate
 					};
-					var marker = $scope.addMarker( "A", latitude, longitude, address, values );
+					var values = $scope.addMarker( "A", latitude, longitude, address, values );
 					if( rentAmount > $scope.rent.max )
 						$scope.rent.max = rentAmount;
 					if( rentAmount < $scope.rent.min )
@@ -150,13 +166,15 @@ angular.module( "RentApp" )
 						$scope.distance.max = distance;
 					if( distance < $scope.distance.min )
 						$scope.distance.min = distance;
-					$scope.rentalHousingMarkers.push( marker );
+					$scope.rentalHousingMarkers.push( values );
+					$scope.markers.push( values.marker );
 				}
 				i++;
 				if( i === PositionService.zpids.length )
 				{
 					$scope.rent.filter = $scope.rent.max;
 					$scope.distance.filter = $scope.distance.max;
+					new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
 					$rootScope.loading = false;
 				}
 			} )
