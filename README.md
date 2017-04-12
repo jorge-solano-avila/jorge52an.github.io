@@ -9,14 +9,16 @@
 * Statistics
 * Markers
 * Crimes
+* Address
+* Distances
 
 ## Description of the datasets and function design
 
-1. __Affordable Rental Housing Developments__
+1. __Zillow API__
 
-* <https://data.cityofchicago.org/api/views/s6ha-ppgi/rows.json>
-* Latitude, longitude and address 
-* About 200 data
+* <https://apizillow.herokuapp.com/zillow-api>
+* API URL, zws-id and zpid 
+* 10 data with zpid's
 
 2. __Crimes - 2001 to present__
 
@@ -28,15 +30,15 @@ __N__ Do you use the mandatory dataset Climate Data Online?
 
 ## Brief Description
 
-This project shows a map with a marker indicating the actual position and others markers for the affordable rental housing. Also, it shows markers indicating the crimes points.
+This project shows a map with a marker indicating the current position and others markers for the affordable rental housing. Also, it filters this markers and trace routes in different ways of travel mode.
 
 ## Map view
 
 * __Y__ Basic Map with specific location
 * __Y__ Markers for location of rental housing
 * __Y__ Labels for rental housing's names
-* __N__ InfoWindow to show detail information of a rental housing
-* __N__ Any other cover on the map
+* __Y__ Dialog to show detail information of a rental housing
+* __Y__ Filters and Trace routes
 
 ## Data Visualization
 
@@ -50,6 +52,7 @@ This project shows a map with a marker indicating the actual position and others
 * __N__ Any information input? List them
 * __Y__ Interaction with Map?
 
-  * Delete markers in sidenav panel
+  * Filter markers in sidenav panel
+  * Trace routes
 
 * __N__ Interaction with data visualization? List them
