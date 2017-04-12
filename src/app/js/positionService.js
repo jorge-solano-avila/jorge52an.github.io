@@ -7,7 +7,7 @@ angular.module( "RentApp" )
 
 	this.getRentalHousing = function( zpid )
 	{
-		return $http.get( "https://apizillow.herokuapp.com/zillow-api?url=GetZestimate.htm&zws-id=X1-ZWz199m9tw1rez_3pg0i&rentzestimate=true&zpid=" + zpid );
+		return $http.get( "https://apizillow.herokuapp.com/zillow-api?url=GetZestimate.htm&zws-id=X1-ZWz1fr56pm2617_a2eph&rentzestimate=true&zpid=" + zpid );
 	}
 
 	this.getAffordableRentalHousing = function()

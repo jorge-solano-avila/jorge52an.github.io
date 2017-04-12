@@ -3,8 +3,34 @@ angular.module( "RentApp" )
 {
 	LoadingService.showLoading();
 	$rootScope.loading = true;
+	$scope.init = false;
 	$scope.rentalHousingMarkers = [];
 	$scope.markers = [];
+
+	$scope.travelModes = [{
+		model: "DRIVING",
+		text: "Driving"
+	},
+	{
+		model: "WALKING",
+		text: "Walking"
+	},
+	{
+		model: "BICYCLING",
+		text: "Bicycling"
+	},
+	{
+		model: "TRANSIT",
+		text: "Transit"
+	}];
+
+	$scope.direction = {
+		origin: {
+			address: "",
+			marker: null
+		},
+		travelMode: ""
+	};
 
 	$scope.rent = {
 		max: 0,
@@ -24,7 +50,10 @@ angular.module( "RentApp" )
 	NgMap.getMap().then( function( map )
 	{
 		$scope.map = map;
+		$scope.directionsService = new google.maps.DirectionsService;
+        $scope.directionsDisplay = new google.maps.DirectionsRenderer;
 		$scope.setCenter();
+		$scope.directionsDisplay.setMap( $scope.map );
 
 		$scope.showAffordableRentalHousing();
 	} );
@@ -113,6 +142,22 @@ angular.module( "RentApp" )
 		$rootScope.loading = false;
 	}
 
+	$scope.showDirection = function()
+	{
+		if( $scope.direction.origin.marker === null )
+			return;
+		$scope.directionsService.route(
+		{
+			origin: { lat: $scope.direction.origin.marker.position.lat(), lng: $scope.direction.origin.marker.position.lng() },
+			destination: { lat: $scope.universityPosition.lat(), lng: $scope.universityPosition.lng() },
+			travelMode: $scope.direction.travelMode
+		}, function( response, status )
+		{
+			if( status === "OK" )
+				$scope.directionsDisplay.setDirections( response );
+		} );
+	}
+
 	$scope.showAffordableRentalHousing = function()
 	{
 		var i = 0;
@@ -135,6 +180,7 @@ angular.module( "RentApp" )
 					var distance = parseInt( google.maps.geometry.spherical.computeDistanceBetween( $scope.universityPosition, rentPosition ) );
 					var sum = 0.0001;
 					latitude = parseFloat( latitude );
+					longitude = parseFloat( longitude );
 					while( true )
 					{
 						var exists = false;
@@ -148,7 +194,7 @@ angular.module( "RentApp" )
 						if( !exists )
 							break;
 					}
-					latitude = latitude.toString();
+					//latitude = latitude.toString();
 					values = {
 						distance: distance,
 						link: link,
@@ -158,6 +204,7 @@ angular.module( "RentApp" )
 						rentUpdate: rentUpdate
 					};
 					var values = $scope.addMarker( "A", latitude, longitude, address, values );
+
 					if( rentAmount > $scope.rent.max )
 						$scope.rent.max = rentAmount;
 					if( rentAmount < $scope.rent.min )
@@ -176,6 +223,7 @@ angular.module( "RentApp" )
 					$scope.distance.filter = $scope.distance.max;
 					new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
 					$rootScope.loading = false;
+					$scope.init = true;
 				}
 			} )
 			.catch( function( response )
@@ -207,4 +255,12 @@ angular.module( "RentApp" )
 			console.log( "Error" );
 		} );
 	}*/
+
+	$scope.$watch( "direction.origin.address", function( newValue, oldValue )
+	{
+		if( newValue !== "" )
+			for( var i = 0; i < $scope.rentalHousingMarkers.length; ++i )
+				if( $scope.rentalHousingMarkers[i].address === newValue )
+					$scope.direction.origin.marker = $scope.rentalHousingMarkers[i].marker;
+	} );
 } );
