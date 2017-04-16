@@ -1,11 +1,12 @@
 angular.module( "RentApp" )
-.controller( "MainController", function( $scope, $rootScope, $mdSidenav, $mdDialog, NgMap, PositionService, LoadingService )
+.controller( "MainController", function( $scope, $rootScope, $mdSidenav, $mdDialog, $mdToast, NgMap, PositionService, LoadingService )
 {
 	LoadingService.showLoading();
 	$rootScope.loading = true;
 	$scope.init = false;
 	$scope.rentalHousingMarkers = [];
 	$scope.markers = [];
+	$scope.addresses = [];
 
 	$scope.travelModes = [{
 		model: "DRIVING",
@@ -51,7 +52,7 @@ angular.module( "RentApp" )
 	{
 		$scope.map = map;
 		$scope.directionsService = new google.maps.DirectionsService;
-        $scope.directionsDisplay = new google.maps.DirectionsRenderer;
+		$scope.directionsDisplay = new google.maps.DirectionsRenderer;
 		$scope.setCenter();
 		$scope.directionsDisplay.setMap( $scope.map );
 
@@ -145,7 +146,15 @@ angular.module( "RentApp" )
 	$scope.showDirection = function()
 	{
 		if( $scope.direction.origin.marker === null )
+		{
+			$mdToast.show(
+				$mdToast.simple()
+					.textContent( "Select a correct address" )
+					.position( "top right" )
+					.hideDelay( 3000 )
+			);
 			return;
+		}
 		$scope.directionsService.route(
 		{
 			origin: { lat: $scope.direction.origin.marker.position.lat(), lng: $scope.direction.origin.marker.position.lng() },
@@ -215,6 +224,7 @@ angular.module( "RentApp" )
 						$scope.distance.min = distance;
 					$scope.rentalHousingMarkers.push( values );
 					$scope.markers.push( values.marker );
+					$scope.addresses.push( values.address );
 				}
 				i++;
 				if( i === PositionService.zpids.length )
@@ -231,8 +241,6 @@ angular.module( "RentApp" )
 				console.log( "Error" );
 			} );
 		} );
-		/*if( data[i][19] > 41.857057 && data[i][19] < 41.897574 &&
-			data[i][20] > -87.686785 && data[i][20] < -87.616983 )*/
 	}
 
 	/*$scope.showCrimes = function()

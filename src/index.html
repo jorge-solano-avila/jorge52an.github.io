@@ -83,10 +83,10 @@
 		<md-content class = "md-padding">
 			<md-content layout = "row" ng-if = "init">
 				<md-content layout-padding flex>
-					<md-autocomplete md-search-text = "direction.origin.address" md-items = "rentalHousing in rentalHousingMarkers | filter: direction.origin.address" md-item-text = "rentalHousing.address" placeholder = "Address">
+					<md-autocomplete md-search-text = "direction.origin.address" md-items = "address in addresses | filter: direction.origin.address" md-item-text = "address" placeholder = "Address">
 						<md-item-template>
 							<span md-highlight-text = "direction.origin.address" md-highlight-flags = "^i">
-								{{ rentalHousing.address }}
+								{{ address }}
 							</span>
 						</md-item-template>
 						<md-not-found>
