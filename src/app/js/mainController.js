@@ -5,8 +5,12 @@ angular.module( "RentApp" )
 	$rootScope.loading = true;
 	$scope.init = false;
 	$scope.rentalHousingMarkers = [];
+	$scope.crimePositions = [];
+	$scope.policeStationPositions = [];
 	$scope.markers = [];
 	$scope.addresses = [];
+	$scope.radarChartData = [];
+	$scope.radarAux = [];
 
 	$scope.travelModes = [{
 		model: "DRIVING",
@@ -167,6 +171,11 @@ angular.module( "RentApp" )
 		} );
 	}
 
+	$scope.computeDistanceBetween = function( position1, position2 )
+	{
+		return parseInt( google.maps.geometry.spherical.computeDistanceBetween( position1, position2 ) );
+	}
+
 	$scope.showAffordableRentalHousing = function()
 	{
 		var i = 0;
@@ -186,7 +195,7 @@ angular.module( "RentApp" )
 					var rentCurrency = values.rentzestimate.amount._currency;
 					var rentUpdate = values.rentzestimate["last-updated"];
 					var rentPosition = new google.maps.LatLng( latitude, longitude );
-					var distance = parseInt( google.maps.geometry.spherical.computeDistanceBetween( $scope.universityPosition, rentPosition ) );
+					var distance = $scope.computeDistanceBetween( $scope.universityPosition, rentPosition );
 					var sum = 0.0001;
 					latitude = parseFloat( latitude );
 					longitude = parseFloat( longitude );
@@ -203,7 +212,6 @@ angular.module( "RentApp" )
 						if( !exists )
 							break;
 					}
-					//latitude = latitude.toString();
 					values = {
 						distance: distance,
 						link: link,
@@ -225,6 +233,10 @@ angular.module( "RentApp" )
 					$scope.rentalHousingMarkers.push( values );
 					$scope.markers.push( values.marker );
 					$scope.addresses.push( values.address );
+					$scope.radarAux.push(
+					{
+						distance: values.distance
+					} );
 				}
 				i++;
 				if( i === PositionService.zpids.length )
@@ -232,8 +244,7 @@ angular.module( "RentApp" )
 					$scope.rent.filter = $scope.rent.max;
 					$scope.distance.filter = $scope.distance.max;
 					new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
-					$rootScope.loading = false;
-					$scope.init = true;
+					$scope.getCrimePositions();
 				}
 			} )
 			.catch( function( response )
@@ -243,26 +254,80 @@ angular.module( "RentApp" )
 		} );
 	}
 
-	/*$scope.showCrimes = function()
+	$scope.getCrimePositions = function()
 	{
 		PositionService.getCrimes().then( function( response )
 		{
 			var data = response.data;
 			for( var i = 0; i < data.length; ++i )
 			{
-				if( data[i][258138743] > 41.857057 && data[i][258138743] < 41.897574 &&
-					data[i][258138744] > -87.686785 && data[i][258138744] < -87.616983 )
+				var latitude = parseFloat( data[i][258138743] );
+				var longitude = parseFloat( data[i][258138744] );
+				if( latitude > 41.857057 && latitude < 41.897574 &&
+					longitude > -87.686785 && longitude < -87.616983 )
 				{
-					var marker = $scope.addMarker( "S", data[i][258138743], data[i][258138744], data[i][258138727] );
-					$scope.crimeMarkers.push( marker );
+					var crimePosition = new google.maps.LatLng( latitude, longitude );
+					$scope.crimePositions.push( crimePosition );
 				}
 			}
+			for( var i = 0; i < $scope.markers.length; ++i )
+			{
+				var sum = 0;
+				for( var j = 0; j < $scope.crimePositions.length; ++j )
+					sum += $scope.computeDistanceBetween( $scope.markers[i].position, $scope.crimePositions[j] );
+				$scope.radarAux[i].safety = sum;
+			}
+			$scope.getPoliceStationPositions();
 		} )
 		.catch( function( response )
 		{
 			console.log( "Error" );
+			$rootScope.loading = false;
+			$scope.init = true;
 		} );
-	}*/
+	}
+
+	$scope.getPoliceStationPositions = function()
+	{
+		PositionService.getPoliceStations().then( function( response )
+		{
+			var data = response.data.data;
+			for( var i = 0; i < data.length; ++i )
+			{
+				var latitude = parseFloat( data[i][20] );
+				var longitude = parseFloat( data[i][21] );
+				if( latitude > 41.857057 && latitude < 41.897574 &&
+					longitude > -87.686785 && longitude < -87.616983 )
+				{
+					var policeStationPosition = new google.maps.LatLng( latitude, longitude );
+					$scope.policeStationPositions.push( policeStationPosition );
+				}
+			}
+			for( var i = 0; i < $scope.markers.length; ++i )
+			{
+				var sum = 0;
+				for( var j = 0; j < $scope.policeStationPositions.length; ++j )
+					sum += $scope.computeDistanceBetween( $scope.markers[i].position, $scope.policeStationPositions[j] );
+				$scope.radarAux[i].safety -= sum;
+			}
+			$scope.computeRadarChartData();
+		} )
+		.catch( function( response )
+		{
+			console.log( "Error" );
+			$rootScope.loading = false;
+			$scope.init = true;
+		} )
+	}
+
+	$scope.computeRadarChartData = function()
+	{
+		for( var i = 0; i < $scope.markers.length; ++i )
+			console.log( $scope.radarAux[i] );
+
+		$rootScope.loading = false;
+		$scope.init = true;
+	}
 
 	$scope.$watch( "direction.origin.address", function( newValue, oldValue )
 	{

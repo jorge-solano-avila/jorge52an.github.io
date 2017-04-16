@@ -10,13 +10,13 @@ angular.module( "RentApp" )
 		return $http.get( "https://apizillow.herokuapp.com/zillow-api?url=GetZestimate.htm&zws-id=X1-ZWz1fr56pm2617_a2eph&rentzestimate=true&zpid=" + zpid );
 	}
 
-	this.getAffordableRentalHousing = function()
-	{
-		return $http.get( "https://data.cityofchicago.org/api/views/s6ha-ppgi/rows.json" );
-	}
-
 	this.getCrimes = function()
 	{
 		return $http.get( "https://data.cityofchicago.org/api/views/ijzp-q8t2/rows.json?accessType=DOWNLOAD&method=getByIds&asHashes=true&start=0&length=200" );
+	}
+
+	this.getPoliceStations = function()
+	{
+		return $http.get( "https://data.cityofchicago.org/api/views/z8bn-74gv/rows.json" );
 	}
 } );
