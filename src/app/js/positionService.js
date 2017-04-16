@@ -24,4 +24,9 @@ angular.module( "RentApp" )
 	{
 		return $http.get( "https://data.cityofchicago.org/api/views/y7qa-tvqx/rows.json" );
 	}
+
+	this.getGroceryStores = function()
+	{
+		return $http.get( "https://data.cityofchicago.org/api/views/53t8-wyrc/rows.json" );
+	}
 } );

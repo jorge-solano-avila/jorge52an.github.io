@@ -8,6 +8,7 @@ angular.module( "RentApp" )
 	$scope.crimePositions = [];
 	$scope.policeStationPositions = [];
 	$scope.parkPositions = [];
+	$scope.groceryStorePositions = [];
 	$scope.markers = [];
 	$scope.addresses = [];
 	$scope.radarChartData = [];
@@ -236,8 +237,10 @@ angular.module( "RentApp" )
 					$scope.addresses.push( values.address );
 					$scope.radarAux.push(
 					{
-						distance: values.distance
+						distance: values.distance,
+						rentalPrice: -1 * values.rent
 					} );
+					$scope.radarChartData.push( [] );
 				}
 				i++;
 				if( i === PositionService.zpids.length )
@@ -333,7 +336,6 @@ angular.module( "RentApp" )
 				if( latitude > 41.857057 && latitude < 41.897574 &&
 					longitude > -87.686785 && longitude < -87.616983 )
 				{
-					console.log( "HERE" );
 					var parkPosition = new google.maps.LatLng( latitude, longitude );
 					$scope.parkPositions.push( parkPosition );
 				}
@@ -342,8 +344,41 @@ angular.module( "RentApp" )
 			{
 				var sum = 0;
 				for( var j = 0; j < $scope.parkPositions.length; ++j )
-					sum += $scope.computeDistanceBetween( $scope.markers[i].position, $scope.parkPositions[j] );
+					sum -= $scope.computeDistanceBetween( $scope.markers[i].position, $scope.parkPositions[j] );
 				$scope.radarAux[i].parks = sum;
+			}
+			$scope.getGroceryStoresPositions();
+		} )
+		.catch( function( response )
+		{
+			console.log( "Error" );
+			$rootScope.loading = false;
+			$scope.init = true;
+		} )
+	}
+
+	$scope.getGroceryStoresPositions = function()
+	{
+		PositionService.getGroceryStores().then( function( response )
+		{
+			var data = response.data.data;
+			for( var i = 0; i < data.length; ++i )
+			{
+				var latitude = parseFloat( data[i][22] );
+				var longitude = parseFloat( data[i][23] );
+				if( latitude > 41.857057 && latitude < 41.897574 &&
+					longitude > -87.686785 && longitude < -87.616983 )
+				{
+					var groceryStorePosition = new google.maps.LatLng( latitude, longitude );
+					$scope.groceryStorePositions.push( groceryStorePosition );
+				}
+			}
+			for( var i = 0; i < $scope.markers.length; ++i )
+			{
+				var sum = 0;
+				for( var j = 0; j < $scope.groceryStorePositions.length; ++j )
+					sum -= $scope.computeDistanceBetween( $scope.markers[i].position, $scope.groceryStorePositions[j] );
+				$scope.radarAux[i].groceryStores = sum;
 			}
 			$scope.computeRadarChartData();
 		} )
@@ -355,10 +390,66 @@ angular.module( "RentApp" )
 		} )
 	}
 
+	$scope.sort = function( array )
+	{
+		var values = angular.copy( array );
+		for( var i = 1; i < values.length; ++i )
+		{
+			var value = values[i];
+			for( var j = i - 1; j >= 0; --j )
+				if( value < values[j] )
+				{
+					values[j + 1] = values[j];
+					values[j] = value;
+				}
+		}
+		return values;
+	}
+
+	$scope.keyRadarChart = function( key, axis )
+	{
+		var values = $scope.sort( $scope.radarAux.map( function( element )
+		{
+			return element[key];
+		} ) );
+		for( var i = 0; i < $scope.radarAux.length; ++i )
+			for( var j = 0; j < values.length; ++j )
+				if( $scope.radarAux[i][key] === values[j] )
+				{
+					$scope.radarChartData[i].push( {
+						axis: axis,
+						value: j
+					} );
+					break;
+				}
+	}
+
 	$scope.computeRadarChartData = function()
 	{
-		for( var i = 0; i < $scope.markers.length; ++i )
-			console.log( $scope.radarAux[i] );
+		var values = [
+		{
+			key: "distance",
+			axis: "Closeness"
+		},
+		{
+			key: "rentalPrice",
+			axis: "Cheaper rental"
+		},
+		{
+			key: "safety",
+			axis: "Safety"
+		},
+		{
+			key: "parks",
+			axis: "Parks & Recreation"
+		},
+		{
+			key: "groceryStores",
+			axis: "Accessibility to grocery stores"
+		}];
+		for( var i = 0; i < values.length; ++i )
+			$scope.keyRadarChart( values[i].key, values[i].axis );
+		console.log( $scope.radarChartData );
 
 		$rootScope.loading = false;
 		$scope.init = true;
