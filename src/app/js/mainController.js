@@ -9,6 +9,7 @@ angular.module( "RentApp" )
 	$scope.policeStationPositions = [];
 	$scope.parkPositions = [];
 	$scope.groceryStorePositions = [];
+	$scope.rentPositions = [];
 	$scope.markers = [];
 	$scope.addresses = [];
 	$scope.radarChartData = [];
@@ -204,8 +205,8 @@ angular.module( "RentApp" )
 					while( true )
 					{
 						var exists = false;
-						for( var i = 0; i < $scope.markers.length; ++i )
-							if( parseFloat( $scope.markers[i].position.lat() ) === latitude )
+						for( var i = 0; i < $scope.rentPositions.length; ++i )
+							if( parseFloat( $scope.rentPositions[i].lat() ) === latitude )
 							{
 								exists = true;
 								latitude += sum;
@@ -222,7 +223,6 @@ angular.module( "RentApp" )
 						rent: rentAmount,
 						rentUpdate: rentUpdate
 					};
-					var values = $scope.addMarker( "A", latitude, longitude, address, values );
 
 					if( rentAmount > $scope.rent.max )
 						$scope.rent.max = rentAmount;
@@ -233,7 +233,7 @@ angular.module( "RentApp" )
 					if( distance < $scope.distance.min )
 						$scope.distance.min = distance;
 					$scope.rentalHousingMarkers.push( values );
-					$scope.markers.push( values.marker );
+					$scope.rentPositions.push( rentPosition );
 					$scope.addresses.push( values.address );
 					$scope.radarAux.push(
 					{
@@ -247,7 +247,6 @@ angular.module( "RentApp" )
 				{
 					$scope.rent.filter = $scope.rent.max;
 					$scope.distance.filter = $scope.distance.max;
-					new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
 					$scope.getCrimePositions();
 				}
 			} )
@@ -274,11 +273,11 @@ angular.module( "RentApp" )
 					$scope.crimePositions.push( crimePosition );
 				}
 			}
-			for( var i = 0; i < $scope.markers.length; ++i )
+			for( var i = 0; i < $scope.rentPositions.length; ++i )
 			{
 				var sum = 0;
 				for( var j = 0; j < $scope.crimePositions.length; ++j )
-					sum += $scope.computeDistanceBetween( $scope.markers[i].position, $scope.crimePositions[j] );
+					sum += $scope.computeDistanceBetween( $scope.rentPositions[i], $scope.crimePositions[j] );
 				$scope.radarAux[i].safety = sum;
 			}
 			$scope.getPoliceStationPositions();
@@ -307,11 +306,11 @@ angular.module( "RentApp" )
 					$scope.policeStationPositions.push( policeStationPosition );
 				}
 			}
-			for( var i = 0; i < $scope.markers.length; ++i )
+			for( var i = 0; i < $scope.rentPositions.length; ++i )
 			{
 				var sum = 0;
 				for( var j = 0; j < $scope.policeStationPositions.length; ++j )
-					sum += $scope.computeDistanceBetween( $scope.markers[i].position, $scope.policeStationPositions[j] );
+					sum += $scope.computeDistanceBetween( $scope.rentPositions[i], $scope.policeStationPositions[j] );
 				$scope.radarAux[i].safety -= sum;
 			}
 			$scope.getParkPositions();
@@ -340,11 +339,11 @@ angular.module( "RentApp" )
 					$scope.parkPositions.push( parkPosition );
 				}
 			}
-			for( var i = 0; i < $scope.markers.length; ++i )
+			for( var i = 0; i < $scope.rentPositions.length; ++i )
 			{
 				var sum = 0;
 				for( var j = 0; j < $scope.parkPositions.length; ++j )
-					sum -= $scope.computeDistanceBetween( $scope.markers[i].position, $scope.parkPositions[j] );
+					sum -= $scope.computeDistanceBetween( $scope.rentPositions[i], $scope.parkPositions[j] );
 				$scope.radarAux[i].parks = sum;
 			}
 			$scope.getGroceryStoresPositions();
@@ -373,11 +372,11 @@ angular.module( "RentApp" )
 					$scope.groceryStorePositions.push( groceryStorePosition );
 				}
 			}
-			for( var i = 0; i < $scope.markers.length; ++i )
+			for( var i = 0; i < $scope.rentPositions.length; ++i )
 			{
 				var sum = 0;
 				for( var j = 0; j < $scope.groceryStorePositions.length; ++j )
-					sum -= $scope.computeDistanceBetween( $scope.markers[i].position, $scope.groceryStorePositions[j] );
+					sum -= $scope.computeDistanceBetween( $scope.rentPositions[i], $scope.groceryStorePositions[j] );
 				$scope.radarAux[i].groceryStores = sum;
 			}
 			$scope.computeRadarChartData();
@@ -449,7 +448,16 @@ angular.module( "RentApp" )
 		}];
 		for( var i = 0; i < values.length; ++i )
 			$scope.keyRadarChart( values[i].key, values[i].axis );
-		console.log( $scope.radarChartData );
+		for( var i = 0; i < $scope.radarAux.length; ++i )
+		{
+			var aux = $scope.rentalHousingMarkers[i];
+			console.log( $scope.radarChartData[i] );
+			aux.radarChartData = [$scope.radarChartData[i]];
+			aux = $scope.addMarker( "A", aux.latitude, aux.longitude, aux.address, aux );
+			$scope.markers.push( aux.marker );
+		}
+
+		new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
 
 		$rootScope.loading = false;
 		$scope.init = true;

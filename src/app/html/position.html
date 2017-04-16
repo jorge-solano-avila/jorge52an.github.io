@@ -9,11 +9,13 @@
 		</div>
 	</md-toolbar>
 	<md-dialog-content>
-		<div class="md-dialog-content">
+		<div class = "md-dialog-content">
 			<h2>Rent {{ rent | currency }}/month</h2>
 			<h4>Last updated: {{ rentUpdate | date }}</h3>
 			<h4>ZIP: {{ zip }}</h3>
 			<h4>Distance to university: {{ distance }} m</h3>
+
+			<div class = "radarChart"></div>
 		</div>
 	</md-dialog-content>
 	<md-dialog-actions layout = "row">
