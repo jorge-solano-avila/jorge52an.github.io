@@ -19,4 +19,9 @@ angular.module( "RentApp" )
 	{
 		return $http.get( "https://data.cityofchicago.org/api/views/z8bn-74gv/rows.json" );
 	}
+
+	this.getParks = function()
+	{
+		return $http.get( "https://data.cityofchicago.org/api/views/y7qa-tvqx/rows.json" );
+	}
 } );

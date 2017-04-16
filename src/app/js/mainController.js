@@ -7,6 +7,7 @@ angular.module( "RentApp" )
 	$scope.rentalHousingMarkers = [];
 	$scope.crimePositions = [];
 	$scope.policeStationPositions = [];
+	$scope.parkPositions = [];
 	$scope.markers = [];
 	$scope.addresses = [];
 	$scope.radarChartData = [];
@@ -309,6 +310,40 @@ angular.module( "RentApp" )
 				for( var j = 0; j < $scope.policeStationPositions.length; ++j )
 					sum += $scope.computeDistanceBetween( $scope.markers[i].position, $scope.policeStationPositions[j] );
 				$scope.radarAux[i].safety -= sum;
+			}
+			$scope.getParkPositions();
+		} )
+		.catch( function( response )
+		{
+			console.log( "Error" );
+			$rootScope.loading = false;
+			$scope.init = true;
+		} )
+	}
+
+	$scope.getParkPositions = function()
+	{
+		PositionService.getParks().then( function( response )
+		{
+			var data = response.data.data;
+			for( var i = 0; i < data.length; ++i )
+			{
+				var latitude = parseFloat( data[i][14][1] );
+				var longitude = parseFloat( data[i][14][2] );
+				if( latitude > 41.857057 && latitude < 41.897574 &&
+					longitude > -87.686785 && longitude < -87.616983 )
+				{
+					console.log( "HERE" );
+					var parkPosition = new google.maps.LatLng( latitude, longitude );
+					$scope.parkPositions.push( parkPosition );
+				}
+			}
+			for( var i = 0; i < $scope.markers.length; ++i )
+			{
+				var sum = 0;
+				for( var j = 0; j < $scope.parkPositions.length; ++j )
+					sum += $scope.computeDistanceBetween( $scope.markers[i].position, $scope.parkPositions[j] );
+				$scope.radarAux[i].parks = sum;
 			}
 			$scope.computeRadarChartData();
 		} )
