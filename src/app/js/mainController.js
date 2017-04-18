@@ -181,7 +181,7 @@ angular.module( "RentApp" )
 
 	$scope.showAffordableRentalHousing = function()
 	{
-		var i = 0;
+		$scope.i = 0;
 		angular.forEach( PositionService.zpids, function( zpid )
 		{
 			PositionService.getRentalHousing( zpid ).then( function( response )
@@ -242,8 +242,8 @@ angular.module( "RentApp" )
 					} );
 					$scope.radarChartData.push( [] );
 				}
-				i++;
-				if( i === PositionService.zpids.length )
+				$scope.i++;
+				if( $scope.i === PositionService.zpids.length )
 				{
 					$scope.rent.filter = $scope.rent.max;
 					$scope.distance.filter = $scope.distance.max;
@@ -448,16 +448,17 @@ angular.module( "RentApp" )
 		}];
 		for( var i = 0; i < values.length; ++i )
 			$scope.keyRadarChart( values[i].key, values[i].axis );
-		for( var i = 0; i < $scope.radarAux.length; ++i )
+		for( var i = 0; i < $scope.rentPositions.length; ++i )
 		{
-			var aux = $scope.rentalHousingMarkers[i];
-			console.log( $scope.radarChartData[i] );
+			var aux = angular.copy( $scope.rentalHousingMarkers[i] );
 			aux.radarChartData = [$scope.radarChartData[i]];
 			aux = $scope.addMarker( "A", aux.latitude, aux.longitude, aux.address, aux );
+			console.log( aux );
 			$scope.markers.push( aux.marker );
 		}
 
-		new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
+		console.log( $scope.markers );
+		//new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
 
 		$rootScope.loading = false;
 		$scope.init = true;
