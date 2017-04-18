@@ -1,11 +1,19 @@
 angular.module( "RentApp" )
-.controller( "MainController", function( $scope, $rootScope, $mdSidenav, $mdDialog, NgMap, PositionService, LoadingService )
+.controller( "MainController", function( $scope, $rootScope, $mdSidenav, $mdDialog, $mdToast, NgMap, PositionService, LoadingService )
 {
 	LoadingService.showLoading();
 	$rootScope.loading = true;
 	$scope.init = false;
 	$scope.rentalHousingMarkers = [];
+	$scope.crimePositions = [];
+	$scope.policeStationPositions = [];
+	$scope.parkPositions = [];
+	$scope.groceryStorePositions = [];
+	$scope.rentPositions = [];
 	$scope.markers = [];
+	$scope.addresses = [];
+	$scope.radarChartData = [];
+	$scope.radarAux = [];
 
 	$scope.travelModes = [{
 		model: "DRIVING",
@@ -51,7 +59,7 @@ angular.module( "RentApp" )
 	{
 		$scope.map = map;
 		$scope.directionsService = new google.maps.DirectionsService;
-        $scope.directionsDisplay = new google.maps.DirectionsRenderer;
+		$scope.directionsDisplay = new google.maps.DirectionsRenderer;
 		$scope.setCenter();
 		$scope.directionsDisplay.setMap( $scope.map );
 
@@ -64,6 +72,29 @@ angular.module( "RentApp" )
 		$scope.map.setCenter( $scope.universityPosition );
 
 		$scope.addMarker( "", $scope.initialPosition[0], $scope.initialPosition[1], title, {} );
+	}
+
+	$scope.drawRadarChart = function( radarChartData )
+	{
+		var margin = { top: 100, right: 100, bottom: 100, left: 100 };
+		var width = Math.min( 700, window.innerWidth - 10 ) - margin.left - margin.right;
+		var height = Math.min( width, window.innerHeight - margin.top - margin.bottom - 20 );
+
+		var color = d3.scale.ordinal().range(
+			["#EDC951", "#CC333F", "#00A0B0"]
+		);
+
+		var radarChartOptions = {
+			w: width,
+			h: height,
+			margin: margin,
+			maxValue: 10,
+			levels: 5,
+			roundStrokes: true,
+			color: color
+		};
+
+		RadarChart( ".radarChart", radarChartData, radarChartOptions );
 	}
 
 	$scope.addMarker = function( label, latitude, longitude, title, values )
@@ -96,7 +127,11 @@ angular.module( "RentApp" )
 					parent: angular.element( document.body ),
 					clickOutsideToClose: true,
 					fullscreen: true,
-					locals: values
+					locals: values,
+					onComplete: function()
+					{
+						$scope.drawRadarChart( values.radarChartData );
+					}
 				} )
 				.then( function()
 				{
@@ -145,7 +180,15 @@ angular.module( "RentApp" )
 	$scope.showDirection = function()
 	{
 		if( $scope.direction.origin.marker === null )
+		{
+			$mdToast.show(
+				$mdToast.simple()
+					.textContent( "Select a correct address" )
+					.position( "top right" )
+					.hideDelay( 3000 )
+			);
 			return;
+		}
 		$scope.directionsService.route(
 		{
 			origin: { lat: $scope.direction.origin.marker.position.lat(), lng: $scope.direction.origin.marker.position.lng() },
@@ -158,9 +201,14 @@ angular.module( "RentApp" )
 		} );
 	}
 
+	$scope.computeDistanceBetween = function( position1, position2 )
+	{
+		return parseInt( google.maps.geometry.spherical.computeDistanceBetween( position1, position2 ) );
+	}
+
 	$scope.showAffordableRentalHousing = function()
 	{
-		var i = 0;
+		$scope.i = 0;
 		angular.forEach( PositionService.zpids, function( zpid )
 		{
 			PositionService.getRentalHousing( zpid ).then( function( response )
@@ -177,15 +225,15 @@ angular.module( "RentApp" )
 					var rentCurrency = values.rentzestimate.amount._currency;
 					var rentUpdate = values.rentzestimate["last-updated"];
 					var rentPosition = new google.maps.LatLng( latitude, longitude );
-					var distance = parseInt( google.maps.geometry.spherical.computeDistanceBetween( $scope.universityPosition, rentPosition ) );
+					var distance = $scope.computeDistanceBetween( $scope.universityPosition, rentPosition );
 					var sum = 0.0001;
 					latitude = parseFloat( latitude );
 					longitude = parseFloat( longitude );
 					while( true )
 					{
 						var exists = false;
-						for( var i = 0; i < $scope.markers.length; ++i )
-							if( parseFloat( $scope.markers[i].position.lat() ) === latitude )
+						for( var i = 0; i < $scope.rentPositions.length; ++i )
+							if( parseFloat( $scope.rentPositions[i].lat() ) === latitude )
 							{
 								exists = true;
 								latitude += sum;
@@ -194,7 +242,6 @@ angular.module( "RentApp" )
 						if( !exists )
 							break;
 					}
-					//latitude = latitude.toString();
 					values = {
 						distance: distance,
 						link: link,
@@ -203,7 +250,6 @@ angular.module( "RentApp" )
 						rent: rentAmount,
 						rentUpdate: rentUpdate
 					};
-					var values = $scope.addMarker( "A", latitude, longitude, address, values );
 
 					if( rentAmount > $scope.rent.max )
 						$scope.rent.max = rentAmount;
@@ -214,16 +260,21 @@ angular.module( "RentApp" )
 					if( distance < $scope.distance.min )
 						$scope.distance.min = distance;
 					$scope.rentalHousingMarkers.push( values );
-					$scope.markers.push( values.marker );
+					$scope.rentPositions.push( rentPosition );
+					$scope.addresses.push( values.address );
+					$scope.radarAux.push(
+					{
+						distance: values.distance,
+						rentalPrice: -1 * values.rent
+					} );
+					$scope.radarChartData.push( [] );
 				}
-				i++;
-				if( i === PositionService.zpids.length )
+				$scope.i++;
+				if( $scope.i === PositionService.zpids.length )
 				{
 					$scope.rent.filter = $scope.rent.max;
 					$scope.distance.filter = $scope.distance.max;
-					new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
-					$rootScope.loading = false;
-					$scope.init = true;
+					$scope.getCrimePositions();
 				}
 			} )
 			.catch( function( response )
@@ -231,30 +282,213 @@ angular.module( "RentApp" )
 				console.log( "Error" );
 			} );
 		} );
-		/*if( data[i][19] > 41.857057 && data[i][19] < 41.897574 &&
-			data[i][20] > -87.686785 && data[i][20] < -87.616983 )*/
 	}
 
-	/*$scope.showCrimes = function()
+	$scope.getCrimePositions = function()
 	{
 		PositionService.getCrimes().then( function( response )
 		{
 			var data = response.data;
 			for( var i = 0; i < data.length; ++i )
 			{
-				if( data[i][258138743] > 41.857057 && data[i][258138743] < 41.897574 &&
-					data[i][258138744] > -87.686785 && data[i][258138744] < -87.616983 )
+				var latitude = parseFloat( data[i][258138743] );
+				var longitude = parseFloat( data[i][258138744] );
+				if( latitude > 41.857057 && latitude < 41.897574 &&
+					longitude > -87.686785 && longitude < -87.616983 )
 				{
-					var marker = $scope.addMarker( "S", data[i][258138743], data[i][258138744], data[i][258138727] );
-					$scope.crimeMarkers.push( marker );
+					var crimePosition = new google.maps.LatLng( latitude, longitude );
+					$scope.crimePositions.push( crimePosition );
 				}
 			}
+			for( var i = 0; i < $scope.rentPositions.length; ++i )
+			{
+				var sum = 0;
+				for( var j = 0; j < $scope.crimePositions.length; ++j )
+					sum += $scope.computeDistanceBetween( $scope.rentPositions[i], $scope.crimePositions[j] );
+				$scope.radarAux[i].safety = sum;
+			}
+			$scope.getPoliceStationPositions();
 		} )
 		.catch( function( response )
 		{
 			console.log( "Error" );
+			$rootScope.loading = false;
+			$scope.init = true;
 		} );
-	}*/
+	}
+
+	$scope.getPoliceStationPositions = function()
+	{
+		PositionService.getPoliceStations().then( function( response )
+		{
+			var data = response.data.data;
+			for( var i = 0; i < data.length; ++i )
+			{
+				var latitude = parseFloat( data[i][20] );
+				var longitude = parseFloat( data[i][21] );
+				if( latitude > 41.857057 && latitude < 41.897574 &&
+					longitude > -87.686785 && longitude < -87.616983 )
+				{
+					var policeStationPosition = new google.maps.LatLng( latitude, longitude );
+					$scope.policeStationPositions.push( policeStationPosition );
+				}
+			}
+			for( var i = 0; i < $scope.rentPositions.length; ++i )
+			{
+				var sum = 0;
+				for( var j = 0; j < $scope.policeStationPositions.length; ++j )
+					sum += $scope.computeDistanceBetween( $scope.rentPositions[i], $scope.policeStationPositions[j] );
+				$scope.radarAux[i].safety -= sum;
+			}
+			$scope.getParkPositions();
+		} )
+		.catch( function( response )
+		{
+			console.log( "Error" );
+			$rootScope.loading = false;
+			$scope.init = true;
+		} )
+	}
+
+	$scope.getParkPositions = function()
+	{
+		PositionService.getParks().then( function( response )
+		{
+			var data = response.data.data;
+			for( var i = 0; i < data.length; ++i )
+			{
+				var latitude = parseFloat( data[i][14][1] );
+				var longitude = parseFloat( data[i][14][2] );
+				if( latitude > 41.857057 && latitude < 41.897574 &&
+					longitude > -87.686785 && longitude < -87.616983 )
+				{
+					var parkPosition = new google.maps.LatLng( latitude, longitude );
+					$scope.parkPositions.push( parkPosition );
+				}
+			}
+			for( var i = 0; i < $scope.rentPositions.length; ++i )
+			{
+				var sum = 0;
+				for( var j = 0; j < $scope.parkPositions.length; ++j )
+					sum -= $scope.computeDistanceBetween( $scope.rentPositions[i], $scope.parkPositions[j] );
+				$scope.radarAux[i].parks = sum;
+			}
+			$scope.getGroceryStoresPositions();
+		} )
+		.catch( function( response )
+		{
+			console.log( "Error" );
+			$rootScope.loading = false;
+			$scope.init = true;
+		} )
+	}
+
+	$scope.getGroceryStoresPositions = function()
+	{
+		PositionService.getGroceryStores().then( function( response )
+		{
+			var data = response.data.data;
+			for( var i = 0; i < data.length; ++i )
+			{
+				var latitude = parseFloat( data[i][22] );
+				var longitude = parseFloat( data[i][23] );
+				if( latitude > 41.857057 && latitude < 41.897574 &&
+					longitude > -87.686785 && longitude < -87.616983 )
+				{
+					var groceryStorePosition = new google.maps.LatLng( latitude, longitude );
+					$scope.groceryStorePositions.push( groceryStorePosition );
+				}
+			}
+			for( var i = 0; i < $scope.rentPositions.length; ++i )
+			{
+				var sum = 0;
+				for( var j = 0; j < $scope.groceryStorePositions.length; ++j )
+					sum -= $scope.computeDistanceBetween( $scope.rentPositions[i], $scope.groceryStorePositions[j] );
+				$scope.radarAux[i].groceryStores = sum;
+			}
+			$scope.computeRadarChartData();
+		} )
+		.catch( function( response )
+		{
+			console.log( "Error" );
+			$rootScope.loading = false;
+			$scope.init = true;
+		} )
+	}
+
+	$scope.sort = function( array )
+	{
+		var values = angular.copy( array );
+		for( var i = 1; i < values.length; ++i )
+		{
+			var value = values[i];
+			for( var j = i - 1; j >= 0; --j )
+				if( value < values[j] )
+				{
+					values[j + 1] = values[j];
+					values[j] = value;
+				}
+		}
+		return values;
+	}
+
+	$scope.keyRadarChart = function( key, axis )
+	{
+		var values = $scope.sort( $scope.radarAux.map( function( element )
+		{
+			return element[key];
+		} ) );
+		for( var i = 0; i < $scope.radarAux.length; ++i )
+			for( var j = 0; j < values.length; ++j )
+				if( $scope.radarAux[i][key] === values[j] )
+				{
+					$scope.radarChartData[i].push( {
+						axis: axis,
+						value: j
+					} );
+					break;
+				}
+	}
+
+	$scope.computeRadarChartData = function()
+	{
+		var values = [
+		{
+			key: "distance",
+			axis: "Closeness"
+		},
+		{
+			key: "rentalPrice",
+			axis: "Cheaper rental"
+		},
+		{
+			key: "safety",
+			axis: "Safety"
+		},
+		{
+			key: "parks",
+			axis: "Parks & Recreation"
+		},
+		{
+			key: "groceryStores",
+			axis: "Accessibility to grocery stores"
+		}];
+		for( var i = 0; i < values.length; ++i )
+			$scope.keyRadarChart( values[i].key, values[i].axis );
+		for( var i = 0; i < $scope.rentPositions.length; ++i )
+		{
+			var aux = angular.copy( $scope.rentalHousingMarkers[i] );
+			aux.radarChartData = [$scope.radarChartData[i]];
+			aux = $scope.addMarker( "A", $scope.rentPositions[i].lat(), $scope.rentPositions[i].lng(), aux.address, aux );
+			$scope.markers.push( aux.marker );
+		}
+
+		//console.log( $scope.markers );
+		//new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
+
+		$rootScope.loading = false;
+		$scope.init = true;
+	}
 
 	$scope.$watch( "direction.origin.address", function( newValue, oldValue )
 	{
