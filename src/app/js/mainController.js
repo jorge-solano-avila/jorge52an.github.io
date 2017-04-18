@@ -74,6 +74,29 @@ angular.module( "RentApp" )
 		$scope.addMarker( "", $scope.initialPosition[0], $scope.initialPosition[1], title, {} );
 	}
 
+	$scope.drawRadarChart = function( radarChartData )
+	{
+		var margin = { top: 100, right: 100, bottom: 100, left: 100 };
+		var width = Math.min( 700, window.innerWidth - 10 ) - margin.left - margin.right;
+		var height = Math.min( width, window.innerHeight - margin.top - margin.bottom - 20 );
+
+		var color = d3.scale.ordinal().range(
+			["#EDC951", "#CC333F", "#00A0B0"]
+		);
+
+		var radarChartOptions = {
+			w: width,
+			h: height,
+			margin: margin,
+			maxValue: 10,
+			levels: 5,
+			roundStrokes: true,
+			color: color
+		};
+
+		RadarChart( ".radarChart", radarChartData, radarChartOptions );
+	}
+
 	$scope.addMarker = function( label, latitude, longitude, title, values )
 	{
 		var position = new google.maps.LatLng( latitude, longitude );
@@ -104,7 +127,11 @@ angular.module( "RentApp" )
 					parent: angular.element( document.body ),
 					clickOutsideToClose: true,
 					fullscreen: true,
-					locals: values
+					locals: values,
+					onComplete: function()
+					{
+						$scope.drawRadarChart( values.radarChartData );
+					}
 				} )
 				.then( function()
 				{
