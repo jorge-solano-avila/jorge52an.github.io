@@ -452,12 +452,11 @@ angular.module( "RentApp" )
 		{
 			var aux = angular.copy( $scope.rentalHousingMarkers[i] );
 			aux.radarChartData = [$scope.radarChartData[i]];
-			aux = $scope.addMarker( "A", aux.latitude, aux.longitude, aux.address, aux );
-			console.log( aux );
+			aux = $scope.addMarker( "A", $scope.rentPositions[i].lat(), $scope.rentPositions[i].lng(), aux.address, aux );
 			$scope.markers.push( aux.marker );
 		}
 
-		console.log( $scope.markers );
+		//console.log( $scope.markers );
 		//new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
 
 		$rootScope.loading = false;

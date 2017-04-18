@@ -2,6 +2,7 @@ angular.module( "RentApp" )
 .controller( "PositionController", function( $scope, $mdDialog, distance, address, link, zip, rent, rentUpdate, radarChartData )
 {
 	$scope.radarChartData = radarChartData;
+	console.log( $scope.radarChartData );
 	$scope.distance = distance;
 	$scope.link = link;
 	$scope.address = address;
