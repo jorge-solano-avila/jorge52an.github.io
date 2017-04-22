@@ -74,21 +74,22 @@ angular.module( "RentApp" )
 		$scope.addMarker( "", $scope.initialPosition[0], $scope.initialPosition[1], title, {} );
 	}
 
-	$scope.drawRadarChart = function( radarChartData )
+	$scope.drawRadarChart = function( radarChartData, index )
 	{
-		var margin = { top: 100, right: 100, bottom: 100, left: 100 };
-		var width = Math.min( 700, window.innerWidth - 10 ) - margin.left - margin.right;
+		var margin = { top: 50, right: 100, bottom: 100, left: 100 };
+		var width = Math.min( 400, window.innerWidth - 10 ) - margin.left - margin.right;
 		var height = Math.min( width, window.innerHeight - margin.top - margin.bottom - 20 );
 
+		var colors = ["#EDC951", "#CC333F", "#00A0B0", "#3144BF", "#91590A", "##910A8C", "#22910A", "#490A91", "#68910A", "#913B0A"];
 		var color = d3.scale.ordinal().range(
-			["#EDC951", "#CC333F", "#00A0B0"]
+			[colors[index]]
 		);
 
 		var radarChartOptions = {
 			w: width,
 			h: height,
 			margin: margin,
-			maxValue: 10,
+			maxValue: 1,
 			levels: 5,
 			roundStrokes: true,
 			color: color
@@ -130,7 +131,7 @@ angular.module( "RentApp" )
 					locals: values,
 					onComplete: function()
 					{
-						$scope.drawRadarChart( values.radarChartData );
+						$scope.drawRadarChart( values.radarChartData, values.index );
 					}
 				} )
 				.then( function()
@@ -191,7 +192,7 @@ angular.module( "RentApp" )
 		}
 		$scope.directionsService.route(
 		{
-			origin: { lat: $scope.direction.origin.marker.position.lat(), lng: $scope.direction.origin.marker.position.lng() },
+			origin: { lat: $scope.direction.origin.marker.lat(), lng: $scope.direction.origin.marker.lng() },
 			destination: { lat: $scope.universityPosition.lat(), lng: $scope.universityPosition.lng() },
 			travelMode: $scope.direction.travelMode
 		}, function( response, status )
@@ -442,9 +443,12 @@ angular.module( "RentApp" )
 			for( var j = 0; j < values.length; ++j )
 				if( $scope.radarAux[i][key] === values[j] )
 				{
+					var aux = 0.1;
+					if( j > 0 )
+						aux = 1 / j;
 					$scope.radarChartData[i].push( {
 						axis: axis,
-						value: j
+						value: aux
 					} );
 					break;
 				}
@@ -479,6 +483,7 @@ angular.module( "RentApp" )
 		{
 			var aux = angular.copy( $scope.rentalHousingMarkers[i] );
 			aux.radarChartData = [$scope.radarChartData[i]];
+			aux.index = i;
 			aux = $scope.addMarker( "A", $scope.rentPositions[i].lat(), $scope.rentPositions[i].lng(), aux.address, aux );
 			$scope.markers.push( aux.marker );
 		}
@@ -495,6 +500,6 @@ angular.module( "RentApp" )
 		if( newValue !== "" )
 			for( var i = 0; i < $scope.rentalHousingMarkers.length; ++i )
 				if( $scope.rentalHousingMarkers[i].address === newValue )
-					$scope.direction.origin.marker = $scope.rentalHousingMarkers[i].marker;
+					$scope.direction.origin.marker = $scope.rentPositions[i];
 	} );
 } );

@@ -35,8 +35,8 @@
 	<script src = "app/js/radarChart.js"></script>
 </head>
 <body ng-controller = "MainController" ng-cloak>
-	<md-toolbar class = "md-primary">
-		<div class = "md-toolbar-tools">
+	<md-toolbar>
+		<div class = "md-toolbar-tools custom-background-color">
 			<md-button class = "md-icon-button" ng-click = "showFilters()" hide-gt-md>
 				<md-icon>menu</md-icon>
 			</md-button>
@@ -47,8 +47,8 @@
 
 	<section layout = "row" flex>
 		<md-sidenav class = "md-sidenav-left md-whiteframe-4dp" md-is-locked-open = "$mdMedia( 'gt-md' )" md-component-id = "left">
-			<md-toolbar class = "md-primary">
-				<h1 class = "md-toolbar-tools">Filters</h1>
+			<md-toolbar>
+				<h1 class = "md-toolbar-tools custom-background-color">Filters</h1>
 			</md-toolbar>
 			<md-content layout-padding ng-if = "init">
 				<h3>Maximum Rent (USD$ per month)</h3>
