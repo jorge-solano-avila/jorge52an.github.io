@@ -89,7 +89,7 @@ angular.module( "RentApp" )
 			w: width,
 			h: height,
 			margin: margin,
-			maxValue: 1,
+			maxValue: 10,
 			levels: 5,
 			roundStrokes: true,
 			color: color
@@ -223,7 +223,6 @@ angular.module( "RentApp" )
 					var longitude = values.address.longitude;
 					var zip = values.address.zipcode;
 					var rentAmount = parseInt( values.rentzestimate.amount.toString() );
-					var rentCurrency = values.rentzestimate.amount._currency;
 					var rentUpdate = values.rentzestimate["last-updated"];
 					var rentPosition = new google.maps.LatLng( latitude, longitude );
 					var distance = $scope.computeDistanceBetween( $scope.universityPosition, rentPosition );
@@ -265,7 +264,7 @@ angular.module( "RentApp" )
 					$scope.addresses.push( values.address );
 					$scope.radarAux.push(
 					{
-						distance: values.distance,
+						distance: -1 * values.distance,
 						rentalPrice: -1 * values.rent
 					} );
 					$scope.radarChartData.push( [] );
@@ -443,12 +442,10 @@ angular.module( "RentApp" )
 			for( var j = 0; j < values.length; ++j )
 				if( $scope.radarAux[i][key] === values[j] )
 				{
-					var aux = 0.1;
-					if( j > 0 )
-						aux = 1 / j;
+					var aux = 1 / ( j + 1 );
 					$scope.radarChartData[i].push( {
 						axis: axis,
-						value: aux
+						value: j
 					} );
 					break;
 				}
@@ -481,7 +478,10 @@ angular.module( "RentApp" )
 			$scope.keyRadarChart( values[i].key, values[i].axis );
 		for( var i = 0; i < $scope.rentPositions.length; ++i )
 		{
+			console.log( $scope.rentalHousingMarkers[i] );
+			console.log( $scope.radarAux[i] );
 			var aux = angular.copy( $scope.rentalHousingMarkers[i] );
+			console.log( $scope.radarChartData[i] );
 			aux.radarChartData = [$scope.radarChartData[i]];
 			aux.index = i;
 			aux = $scope.addMarker( "A", $scope.rentPositions[i].lat(), $scope.rentPositions[i].lng(), aux.address, aux );
