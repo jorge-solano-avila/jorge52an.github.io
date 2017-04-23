@@ -169,12 +169,16 @@ angular.module( "RentApp" )
 	{
 		LoadingService.showLoading();
 		$rootScope.loading = true;
+		$scope.markerCluster.clearMarkers();
 		for( var i = 0; i < $scope.rentalHousingMarkers.length; ++i )
 			if( $scope.rentalHousingMarkers[i].rent <= $scope.rent.filter &&
 				$scope.rentalHousingMarkers[i].distance <= $scope.distance.filter )
-				$scope.rentalHousingMarkers[i].marker.setMap( $scope.map );
+			{
+				$scope.markers[i].setMap( $scope.map );
+				$scope.markerCluster.addMarker( $scope.markers[i] );
+			}
 			else
-				$scope.rentalHousingMarkers[i].marker.setMap( null );
+				$scope.markers[i].setMap( null );
 		$rootScope.loading = false;
 	}
 
@@ -185,7 +189,7 @@ angular.module( "RentApp" )
 			$mdToast.show(
 				$mdToast.simple()
 					.textContent( "Select a correct address" )
-					.position( "top right" )
+					.position( "bottom right" )
 					.hideDelay( 3000 )
 			);
 			return;
