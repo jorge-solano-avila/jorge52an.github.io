@@ -4,6 +4,7 @@ angular.module( "RentApp" )
 	LoadingService.showLoading();
 	$rootScope.loading = true;
 	$scope.init = false;
+	$scope.selectedIndex = 0;
 	$scope.rentalHousingMarkers = [];
 	$scope.crimePositions = [];
 	$scope.policeStationPositions = [];

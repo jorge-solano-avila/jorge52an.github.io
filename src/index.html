@@ -47,40 +47,53 @@
 
 	<section layout = "row" flex>
 		<md-sidenav class = "md-sidenav-left md-whiteframe-4dp" md-is-locked-open = "$mdMedia( 'gt-md' )" md-component-id = "left">
-			<md-toolbar>
-				<h1 class = "md-toolbar-tools custom-background-color">Filters</h1>
-			</md-toolbar>
-			<md-content layout-padding ng-if = "init">
-				<h3>Maximum Rent (USD$ per month)</h3>
-				<md-slider-container>
-					<span>{{ rent.min }}</span>
-					<md-slider class = "md-primary" flex min = "{{ rent.min }}" max = "{{ rent.max }}" ng-model = "rent.filter">
-					</md-slider>
-					<md-input-container>
-						<input flex type = "number" ng-model = "rent.filter">
-					</md-input-container>
-				</md-slider-container>
+			<md-tabs class = "md-primary" md-selected = "selectedIndex" md-autoselect md-dynamic-height>
+				<md-tab label = "Filters">
+					<md-content layout-padding ng-if = "init">
+						<h3>Maximum Rent (USD$ per month)</h3>
+						<md-slider-container>
+							<span>{{ rent.min }}</span>
+							<md-slider class = "md-primary" flex min = "{{ rent.min }}" max = "{{ rent.max }}" ng-model = "rent.filter">
+							</md-slider>
+							<md-input-container>
+								<input flex type = "number" ng-model = "rent.filter">
+							</md-input-container>
+						</md-slider-container>
 
-				<h3>Maximum Distance (m)</h3>
-				<md-slider-container>
-					<span>{{ distance.min }}</span>
-					<md-slider class = "md-primary" flex min = "{{ distance.min }}" max = "{{ distance.max }}" ng-model = "distance.filter">
-					</md-slider>
-					<md-input-container>
-						<input flex type = "number" ng-model = "distance.filter">
-					</md-input-container>
-				</md-slider-container>
-			</md-content>
-			<md-content layout = "row">
-				<md-content layout-align = "center center">
-					<md-button ng-click = "closeFilters()" class = "md-raised md-primary" hide-gt-md>
-						Close
-					</md-button>
-					<md-button ng-click = "filter()" class = "md-raised md-primary">
-						Filter
-					</md-button>
-				</md-content>
-			</md-content>
+						<h3>Maximum Distance (m)</h3>
+						<md-slider-container>
+							<span>{{ distance.min }}</span>
+							<md-slider class = "md-primary" flex min = "{{ distance.min }}" max = "{{ distance.max }}" ng-model = "distance.filter">
+							</md-slider>
+							<md-input-container>
+								<input flex type = "number" ng-model = "distance.filter">
+							</md-input-container>
+						</md-slider-container>
+					</md-content>
+					<md-content layout = "row">
+						<md-content layout-align = "center center">
+							<md-button ng-click = "closeFilters()" class = "md-raised md-primary" hide-gt-md>
+								Close
+							</md-button>
+							<md-button ng-click = "filter()" class = "md-raised md-primary">
+								Filter
+							</md-button>
+						</md-content>
+					</md-content>
+				</md-tab>
+				<md-tab label = "Climate">
+					<md-content layout-padding ng-if = "init">
+						
+					</md-content>
+					<md-content layout = "row">
+						<md-content layout-align = "center center">
+							<md-button ng-click = "closeFilters()" class = "md-raised md-primary" hide-gt-md>
+								Close
+							</md-button>
+						</md-content>
+					</md-content>
+				</md-tab>
+			</md-tabs>
 		</md-sidenav>
 		<md-content class = "md-padding">
 			<md-content layout = "row" ng-if = "init">

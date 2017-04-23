@@ -1,7 +1,6 @@
 angular.module( "RentApp" )
 .service( "PositionService", function( $http )
 {
-	this.tokenCDO = "bkkpluExMGYJSXoVxxWyKuTwCQPNIHHN";
 	this.zmwsId = "X1-ZWz199m9tw1rez_3pg0i";
 	this.zpids = [3874355, 2100595411, 87718017, 87707655, 87693778, 60270592, 60203847, 62013380, 60270091, 2112604850];
 
