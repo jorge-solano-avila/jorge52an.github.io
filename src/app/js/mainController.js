@@ -488,8 +488,7 @@ angular.module( "RentApp" )
 			$scope.markers.push( aux.marker );
 		}
 
-		//console.log( $scope.markers );
-		//new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
+		new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
 
 		$rootScope.loading = false;
 		$scope.init = true;
