@@ -80,7 +80,7 @@ angular.module( "RentApp" )
 		var width = Math.min( 400, window.innerWidth - 10 ) - margin.left - margin.right;
 		var height = Math.min( width, window.innerHeight - margin.top - margin.bottom - 20 );
 
-		var colors = ["#EDC951", "#CC333F", "#00A0B0", "#3144BF", "#91590A", "##910A8C", "#22910A", "#490A91", "#68910A", "#913B0A"];
+		var colors = ["#EDC951", "#CC333F", "#00A0B0", "#3144BF", "#91590A", "#910A8C", "#22910A", "#490A91", "#68910A", "#913B0A"];
 		var color = d3.scale.ordinal().range(
 			[colors[index]]
 		);
@@ -224,8 +224,7 @@ angular.module( "RentApp" )
 					var zip = values.address.zipcode;
 					var rentAmount = parseInt( values.rentzestimate.amount.toString() );
 					var rentUpdate = values.rentzestimate["last-updated"];
-					var rentPosition = new google.maps.LatLng( latitude, longitude );
-					var distance = $scope.computeDistanceBetween( $scope.universityPosition, rentPosition );
+					
 					var sum = 0.0001;
 					latitude = parseFloat( latitude );
 					longitude = parseFloat( longitude );
@@ -242,6 +241,8 @@ angular.module( "RentApp" )
 						if( !exists )
 							break;
 					}
+					var rentPosition = new google.maps.LatLng( latitude, longitude );
+					var distance = $scope.computeDistanceBetween( $scope.universityPosition, rentPosition );
 					values = {
 						distance: distance,
 						link: link,
@@ -478,17 +479,14 @@ angular.module( "RentApp" )
 			$scope.keyRadarChart( values[i].key, values[i].axis );
 		for( var i = 0; i < $scope.rentPositions.length; ++i )
 		{
-			console.log( $scope.rentalHousingMarkers[i] );
-			console.log( $scope.radarAux[i] );
 			var aux = angular.copy( $scope.rentalHousingMarkers[i] );
-			console.log( $scope.radarChartData[i] );
 			aux.radarChartData = [$scope.radarChartData[i]];
 			aux.index = i;
 			aux = $scope.addMarker( "A", $scope.rentPositions[i].lat(), $scope.rentPositions[i].lng(), aux.address, aux );
 			$scope.markers.push( aux.marker );
 		}
 
-		new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
+		$scope.markerCluster = new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
 
 		$rootScope.loading = false;
 		$scope.init = true;
