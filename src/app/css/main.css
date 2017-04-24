@@ -27,3 +27,9 @@ html, body
 {
 	background-color: #121935;
 }
+
+.custom-image-size
+{
+	height: 128px;
+	width: 128px;
+}

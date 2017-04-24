@@ -105,8 +105,12 @@
 							</md-select>
 						</md-input-container>
 						<div ng-show = "precipitation !== null" layout = "row">
-							<img ng-src = "{{ precipitationSrc }}" style = "height: 128px; width: 128px;"/>
-							<h2>{{ precipitation }} mm</h2>
+							<img ng-src = "{{ precipitationSrc }}" class = "custom-image-size"/>
+							<div layout = "column">
+								<br>
+								<br>
+								<h2>{{ precipitation }} mm</h2>
+							</div>
 						</div>
 					</md-content>
 					<md-content layout = "row">
