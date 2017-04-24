@@ -19,20 +19,21 @@
 	<script src = "https://rawgit.com/johngeorgewright/angular-xml/develop/angular-xml.min.js"></script>
 	<script src = "https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset = "utf-8"></script>
 
-	<script type ="text/ng-template" id = "loading.html">
+	<script src = "app/js/app.js"></script>
+	<script src = "app/js/mainController.js"></script>
+	<script src = "app/js/positionController.js"></script>
+	<script src = "app/js/positionService.js"></script>
+	<script src = "app/js/climateService.js"></script>
+	<script src = "app/js/loadingService.js"></script>
+	<script src = "app/js/radarChart.js"></script>
+
+	<script type = "text/ng-template" id = "loading.html">
 		<md-dialog class = "custom-loading-dialog">
 			<div layout = "row" layout-sm = "column" layout-align = "center center">
 				<md-progress-circular md-mode = "indeterminate"></md-progress-circular>
 			</div>
 		</md-dialog>
 	</script>
-
-	<script src = "app/js/app.js"></script>
-	<script src = "app/js/mainController.js"></script>
-	<script src = "app/js/positionController.js"></script>
-	<script src = "app/js/positionService.js"></script>
-	<script src = "app/js/loadingService.js"></script>
-	<script src = "app/js/radarChart.js"></script>
 </head>
 <body ng-controller = "MainController" ng-cloak>
 	<md-toolbar>

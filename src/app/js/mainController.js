@@ -1,5 +1,5 @@
 angular.module( "RentApp" )
-.controller( "MainController", function( $scope, $rootScope, $mdSidenav, $mdDialog, $mdToast, NgMap, PositionService, LoadingService )
+.controller( "MainController", function( $scope, $rootScope, $mdSidenav, $mdDialog, $mdToast, NgMap, PositionService, ClimateService, LoadingService )
 {
 	LoadingService.showLoading();
 	$rootScope.loading = true;
@@ -65,6 +65,7 @@ angular.module( "RentApp" )
 		$scope.directionsDisplay.setMap( $scope.map );
 
 		$scope.showAffordableRentalHousing();
+		$scope.getClimateData();
 	} );
 
 	$scope.setCenter = function()
@@ -287,6 +288,18 @@ angular.module( "RentApp" )
 			{
 				console.log( "Error" );
 			} );
+		} );
+	}
+
+	$scope.getClimateData = function()
+	{
+		ClimateService.getTemperatureAverage().then( function( response )
+		{
+			console.log( response );
+		} )
+		.catch( function( response )
+		{
+
 		} );
 	}
 
