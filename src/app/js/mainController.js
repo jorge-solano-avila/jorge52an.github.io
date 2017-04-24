@@ -204,6 +204,16 @@ angular.module( "RentApp" )
 			);
 			return;
 		}
+		if( $scope.direction.travelMode === "" )
+		{
+			$mdToast.show(
+				$mdToast.simple()
+					.textContent( "Select a travel mode" )
+					.position( "bottom right" )
+					.hideDelay( 3000 )
+			);
+			return;
+		}
 		$scope.directionsService.route(
 		{
 			origin: { lat: $scope.direction.origin.marker.lat(), lng: $scope.direction.origin.marker.lng() },
@@ -551,7 +561,6 @@ angular.module( "RentApp" )
 
 	$scope.$watch( "precipitation", function( newValue, oldValue )
 	{
-		console.log( oldValue, newValue );
 		if( newValue !== null )
 			if( newValue <= 5 )
 				$scope.precipitationSrc = "assets/images/precipitation1.png";
