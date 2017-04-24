@@ -83,8 +83,28 @@
 					</md-content>
 				</md-tab>
 				<md-tab label = "Climate">
-					<md-content layout-padding ng-if = "init">
-						
+					<md-content layout-padding ng-if = "init && ( temperatures.length > 0 || precipitations.length > 0 )">
+						<h3>Historical temperatures</h3>
+						<md-input-container>
+							<label>Month</label>
+							<md-select ng-model = "temperature">
+								<md-option ng-repeat = "temperaturePerMonth in temperaturePerMonths" ng-value = "temperaturePerMonth.value">
+									{{ temperaturePerMonth.date }}
+								</md-option>
+							</md-select>
+						</md-input-container>
+						<h2 ng-show = "temperature !== null">{{ temperature }} °C</h2>
+
+						<h3>Historical precipitations</h3>
+						<md-input-container>
+							<label>Month</label>
+							<md-select ng-model = "precipitation">
+								<md-option ng-repeat = "precipitationPerMonth in precipitationPerMonths" ng-value = "precipitationPerMonth.value">
+									{{ precipitationPerMonth.date }}
+								</md-option>
+							</md-select>
+						</md-input-container>
+						<h2 ng-show = "precipitation !== null">{{ precipitation }} mm</h2>
 					</md-content>
 					<md-content layout = "row">
 						<md-content layout-align = "center center">

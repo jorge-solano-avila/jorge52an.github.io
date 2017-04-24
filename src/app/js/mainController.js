@@ -15,6 +15,12 @@ angular.module( "RentApp" )
 	$scope.addresses = [];
 	$scope.radarChartData = [];
 	$scope.radarAux = [];
+	$scope.temperaturePerMonths = [];
+	$scope.temperatures = [];
+	$scope.temperature = null;
+	$scope.precipitationPerMonths = [];
+	$scope.precipitations = [];
+	$scope.precipitation = null;
 
 	$scope.travelModes = [{
 		model: "DRIVING",
@@ -91,7 +97,7 @@ angular.module( "RentApp" )
 			w: width,
 			h: height,
 			margin: margin,
-			maxValue: 10,
+			maxValue: 1,
 			levels: 5,
 			roundStrokes: true,
 			color: color
@@ -295,11 +301,29 @@ angular.module( "RentApp" )
 	{
 		ClimateService.getTemperatureAverage().then( function( response )
 		{
-			console.log( response );
-		} )
-		.catch( function( response )
+			$scope.temperatures = response.data.results;
+			for( var i = 0; i < $scope.temperatures.length; ++i )
+			{
+				var date = $scope.temperatures[i].date.split( "-" );
+				$scope.temperaturePerMonths.push( 
+				{
+					value: $scope.temperatures[i].value,
+					date: new Date( parseInt( date[0] ), parseInt( date[1] ) - 1, parseInt( date[2].substring( 0, 2 ) ) ).toDateString()
+				} );
+			}
+		} );
+		ClimateService.getPrecipitations().then( function( response )
 		{
-
+			$scope.precipitations = response.data.results;
+			for( var i = 0; i < $scope.precipitations.length; ++i )
+			{
+				var date = $scope.precipitations[i].date.split( "-" );
+				$scope.precipitationPerMonths.push( 
+				{
+					value: $scope.precipitations[i].value,
+					date: new Date( parseInt( date[0] ), parseInt( date[1] ) - 1, parseInt( date[2].substring( 0, 2 ) ) ).toDateString()
+				} );
+			}
 		} );
 	}
 
@@ -461,10 +485,10 @@ angular.module( "RentApp" )
 			for( var j = 0; j < values.length; ++j )
 				if( $scope.radarAux[i][key] === values[j] )
 				{
-					var aux = 1 / ( j + 1 );
+					var aux = ( j + 1 ) / 10;
 					$scope.radarChartData[i].push( {
 						axis: axis,
-						value: j
+						value: aux
 					} );
 					break;
 				}
