@@ -19,24 +19,25 @@
 	<script src = "https://rawgit.com/johngeorgewright/angular-xml/develop/angular-xml.min.js"></script>
 	<script src = "https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset = "utf-8"></script>
 
-	<script type ="text/ng-template" id = "loading.html">
+	<script src = "app/js/app.js"></script>
+	<script src = "app/js/mainController.js"></script>
+	<script src = "app/js/positionController.js"></script>
+	<script src = "app/js/positionService.js"></script>
+	<script src = "app/js/climateService.js"></script>
+	<script src = "app/js/loadingService.js"></script>
+	<script src = "app/js/radarChart.js"></script>
+
+	<script type = "text/ng-template" id = "loading.html">
 		<md-dialog class = "custom-loading-dialog">
 			<div layout = "row" layout-sm = "column" layout-align = "center center">
 				<md-progress-circular md-mode = "indeterminate"></md-progress-circular>
 			</div>
 		</md-dialog>
 	</script>
-
-	<script src = "app/js/app.js"></script>
-	<script src = "app/js/mainController.js"></script>
-	<script src = "app/js/positionController.js"></script>
-	<script src = "app/js/positionService.js"></script>
-	<script src = "app/js/loadingService.js"></script>
-	<script src = "app/js/radarChart.js"></script>
 </head>
 <body ng-controller = "MainController" ng-cloak>
 	<md-toolbar>
-		<div class = "md-toolbar-tools custom-background-color">
+		<div class = "md-toolbar-tools md-primary">
 			<md-button class = "md-icon-button" ng-click = "showFilters()" hide-gt-md>
 				<md-icon>menu</md-icon>
 			</md-button>
@@ -47,40 +48,80 @@
 
 	<section layout = "row" flex>
 		<md-sidenav class = "md-sidenav-left md-whiteframe-4dp" md-is-locked-open = "$mdMedia( 'gt-md' )" md-component-id = "left">
-			<md-toolbar>
-				<h1 class = "md-toolbar-tools custom-background-color">Filters</h1>
-			</md-toolbar>
-			<md-content layout-padding ng-if = "init">
-				<h3>Maximum Rent (USD$ per month)</h3>
-				<md-slider-container>
-					<span>{{ rent.min }}</span>
-					<md-slider class = "md-primary" flex min = "{{ rent.min }}" max = "{{ rent.max }}" ng-model = "rent.filter">
-					</md-slider>
-					<md-input-container>
-						<input flex type = "number" ng-model = "rent.filter">
-					</md-input-container>
-				</md-slider-container>
+			<md-tabs class = "md-primary" md-selected = "selectedIndex" md-autoselect md-dynamic-height>
+				<md-tab label = "Filters">
+					<md-content layout-padding ng-if = "init">
+						<h3>Maximum Rent (USD$ per month)</h3>
+						<md-slider-container>
+							<span>{{ rent.min }}</span>
+							<md-slider class = "md-primary" flex min = "{{ rent.min }}" max = "{{ rent.max }}" ng-model = "rent.filter">
+							</md-slider>
+							<md-input-container>
+								<input flex type = "number" ng-model = "rent.filter">
+							</md-input-container>
+						</md-slider-container>
 
-				<h3>Maximum Distance (m)</h3>
-				<md-slider-container>
-					<span>{{ distance.min }}</span>
-					<md-slider class = "md-primary" flex min = "{{ distance.min }}" max = "{{ distance.max }}" ng-model = "distance.filter">
-					</md-slider>
-					<md-input-container>
-						<input flex type = "number" ng-model = "distance.filter">
-					</md-input-container>
-				</md-slider-container>
-			</md-content>
-			<md-content layout = "row">
-				<md-content layout-align = "center center">
-					<md-button ng-click = "closeFilters()" class = "md-raised md-primary" hide-gt-md>
-						Close
-					</md-button>
-					<md-button ng-click = "filter()" class = "md-raised md-primary">
-						Filter
-					</md-button>
-				</md-content>
-			</md-content>
+						<h3>Maximum Distance (m)</h3>
+						<md-slider-container>
+							<span>{{ distance.min }}</span>
+							<md-slider class = "md-primary" flex min = "{{ distance.min }}" max = "{{ distance.max }}" ng-model = "distance.filter">
+							</md-slider>
+							<md-input-container>
+								<input flex type = "number" ng-model = "distance.filter">
+							</md-input-container>
+						</md-slider-container>
+					</md-content>
+					<md-content layout = "row">
+						<md-content layout-align = "center center">
+							<md-button ng-click = "closeFilters()" class = "md-raised md-primary" hide-gt-md>
+								Close
+							</md-button>
+							<md-button ng-click = "filter()" class = "md-raised md-primary">
+								Filter
+							</md-button>
+						</md-content>
+					</md-content>
+				</md-tab>
+				<md-tab label = "Climate">
+					<md-content layout-padding ng-if = "init && ( temperatures.length > 0 || precipitations.length > 0 )">
+						<h3>Historical temperatures</h3>
+						<md-input-container>
+							<label>Month</label>
+							<md-select ng-model = "temperature">
+								<md-option ng-repeat = "temperaturePerMonth in temperaturePerMonths" ng-value = "temperaturePerMonth.value">
+									{{ temperaturePerMonth.date }}
+								</md-option>
+							</md-select>
+						</md-input-container>
+						<h2 ng-show = "temperature !== null">{{ temperature }} °C</h2>
+
+						<h3>Historical precipitations</h3>
+						<md-input-container>
+							<label>Month</label>
+							<md-select ng-model = "precipitation" ng-change = "updatePrecipitation( precipitation )">
+								<md-option ng-repeat = "precipitationPerMonth in precipitationPerMonths" ng-value = "precipitationPerMonth.value">
+									{{ precipitationPerMonth.date }}
+								</md-option>
+							</md-select>
+						</md-input-container>
+						<div ng-show = "precipitation !== null" layout = "row">
+							<img ng-src = "{{ precipitationSrc }}" class = "custom-image-size"/>
+							<div layout = "column">
+								<br>
+								<br>
+								<h2>{{ precipitation }} mm</h2>
+							</div>
+						</div>
+					</md-content>
+					<md-content layout = "row">
+						<md-content layout-align = "center center">
+							<md-button ng-click = "closeFilters()" class = "md-raised md-primary" hide-gt-md>
+								Close
+							</md-button>
+						</md-content>
+					</md-content>
+				</md-tab>
+			</md-tabs>
 		</md-sidenav>
 		<md-content class = "md-padding">
 			<md-content layout = "row" ng-if = "init">

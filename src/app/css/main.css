@@ -22,3 +22,14 @@ html, body
 {
 	background-color: #0E1326;
 }
+
+.custom-modal-background-color
+{
+	background-color: #121935;
+}
+
+.custom-image-size
+{
+	height: 128px;
+	width: 128px;
+}

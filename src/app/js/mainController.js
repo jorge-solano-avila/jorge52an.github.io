@@ -1,9 +1,10 @@
 angular.module( "RentApp" )
-.controller( "MainController", function( $scope, $rootScope, $mdSidenav, $mdDialog, $mdToast, NgMap, PositionService, LoadingService )
+.controller( "MainController", function( $scope, $rootScope, $mdSidenav, $mdDialog, $mdToast, NgMap, PositionService, ClimateService, LoadingService )
 {
 	LoadingService.showLoading();
 	$rootScope.loading = true;
 	$scope.init = false;
+	$scope.selectedIndex = 0;
 	$scope.rentalHousingMarkers = [];
 	$scope.crimePositions = [];
 	$scope.policeStationPositions = [];
@@ -14,6 +15,14 @@ angular.module( "RentApp" )
 	$scope.addresses = [];
 	$scope.radarChartData = [];
 	$scope.radarAux = [];
+	$scope.temperaturePerMonths = [];
+	$scope.temperatures = [];
+	$scope.temperature = null;
+	$scope.temperatureSrc = "";
+	$scope.precipitationPerMonths = [];
+	$scope.precipitations = [];
+	$scope.precipitation = null;
+	$scope.precipitationSrc = "";
 
 	$scope.travelModes = [{
 		model: "DRIVING",
@@ -64,6 +73,7 @@ angular.module( "RentApp" )
 		$scope.directionsDisplay.setMap( $scope.map );
 
 		$scope.showAffordableRentalHousing();
+		$scope.getClimateData();
 	} );
 
 	$scope.setCenter = function()
@@ -80,7 +90,7 @@ angular.module( "RentApp" )
 		var width = Math.min( 400, window.innerWidth - 10 ) - margin.left - margin.right;
 		var height = Math.min( width, window.innerHeight - margin.top - margin.bottom - 20 );
 
-		var colors = ["#EDC951", "#CC333F", "#00A0B0", "#3144BF", "#91590A", "##910A8C", "#22910A", "#490A91", "#68910A", "#913B0A"];
+		var colors = ["#EDC951", "#CC333F", "#00A0B0", "#3144BF", "#91590A", "#910A8C", "#22910A", "#490A91", "#68910A", "#913B0A"];
 		var color = d3.scale.ordinal().range(
 			[colors[index]]
 		);
@@ -169,12 +179,16 @@ angular.module( "RentApp" )
 	{
 		LoadingService.showLoading();
 		$rootScope.loading = true;
+		$scope.markerCluster.clearMarkers();
 		for( var i = 0; i < $scope.rentalHousingMarkers.length; ++i )
 			if( $scope.rentalHousingMarkers[i].rent <= $scope.rent.filter &&
 				$scope.rentalHousingMarkers[i].distance <= $scope.distance.filter )
-				$scope.rentalHousingMarkers[i].marker.setMap( $scope.map );
+			{
+				$scope.markers[i].setMap( $scope.map );
+				$scope.markerCluster.addMarker( $scope.markers[i] );
+			}
 			else
-				$scope.rentalHousingMarkers[i].marker.setMap( null );
+				$scope.markers[i].setMap( null );
 		$rootScope.loading = false;
 	}
 
@@ -185,7 +199,17 @@ angular.module( "RentApp" )
 			$mdToast.show(
 				$mdToast.simple()
 					.textContent( "Select a correct address" )
-					.position( "top right" )
+					.position( "bottom right" )
+					.hideDelay( 3000 )
+			);
+			return;
+		}
+		if( $scope.direction.travelMode === "" )
+		{
+			$mdToast.show(
+				$mdToast.simple()
+					.textContent( "Select a travel mode" )
+					.position( "bottom right" )
 					.hideDelay( 3000 )
 			);
 			return;
@@ -223,10 +247,8 @@ angular.module( "RentApp" )
 					var longitude = values.address.longitude;
 					var zip = values.address.zipcode;
 					var rentAmount = parseInt( values.rentzestimate.amount.toString() );
-					var rentCurrency = values.rentzestimate.amount._currency;
 					var rentUpdate = values.rentzestimate["last-updated"];
-					var rentPosition = new google.maps.LatLng( latitude, longitude );
-					var distance = $scope.computeDistanceBetween( $scope.universityPosition, rentPosition );
+					
 					var sum = 0.0001;
 					latitude = parseFloat( latitude );
 					longitude = parseFloat( longitude );
@@ -243,6 +265,8 @@ angular.module( "RentApp" )
 						if( !exists )
 							break;
 					}
+					var rentPosition = new google.maps.LatLng( latitude, longitude );
+					var distance = $scope.computeDistanceBetween( $scope.universityPosition, rentPosition );
 					values = {
 						distance: distance,
 						link: link,
@@ -265,7 +289,7 @@ angular.module( "RentApp" )
 					$scope.addresses.push( values.address );
 					$scope.radarAux.push(
 					{
-						distance: values.distance,
+						distance: -1 * values.distance,
 						rentalPrice: -1 * values.rent
 					} );
 					$scope.radarChartData.push( [] );
@@ -282,6 +306,36 @@ angular.module( "RentApp" )
 			{
 				console.log( "Error" );
 			} );
+		} );
+	}
+
+	$scope.getClimateData = function()
+	{
+		ClimateService.getTemperatureAverage().then( function( response )
+		{
+			$scope.temperatures = response.data.results;
+			for( var i = 0; i < $scope.temperatures.length; ++i )
+			{
+				var date = $scope.temperatures[i].date.split( "-" );
+				$scope.temperaturePerMonths.push( 
+				{
+					value: $scope.temperatures[i].value,
+					date: new Date( parseInt( date[0] ), parseInt( date[1] ) - 1, parseInt( date[2].substring( 0, 2 ) ) ).toDateString()
+				} );
+			}
+		} );
+		ClimateService.getPrecipitations().then( function( response )
+		{
+			$scope.precipitations = response.data.results;
+			for( var i = 0; i < $scope.precipitations.length; ++i )
+			{
+				var date = $scope.precipitations[i].date.split( "-" );
+				$scope.precipitationPerMonths.push( 
+				{
+					value: $scope.precipitations[i].value,
+					date: new Date( parseInt( date[0] ), parseInt( date[1] ) - 1, parseInt( date[2].substring( 0, 2 ) ) ).toDateString()
+				} );
+			}
 		} );
 	}
 
@@ -443,9 +497,7 @@ angular.module( "RentApp" )
 			for( var j = 0; j < values.length; ++j )
 				if( $scope.radarAux[i][key] === values[j] )
 				{
-					var aux = 0.1;
-					if( j > 0 )
-						aux = 1 / j;
+					var aux = ( j + 1 ) / 10;
 					$scope.radarChartData[i].push( {
 						axis: axis,
 						value: aux
@@ -488,11 +540,15 @@ angular.module( "RentApp" )
 			$scope.markers.push( aux.marker );
 		}
 
-		//console.log( $scope.markers );
-		//new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
+		$scope.markerCluster = new MarkerClusterer( $scope.map, $scope.markers, { imagePath: "https://developers.google.com/maps/documentation/javascript/examples/markerclusterer/m" } );
 
 		$rootScope.loading = false;
 		$scope.init = true;
+	}
+
+	$scope.updatePrecipitation = function( precipitation )
+	{
+		$scope.precipitation = precipitation;
 	}
 
 	$scope.$watch( "direction.origin.address", function( newValue, oldValue )
@@ -501,5 +557,22 @@ angular.module( "RentApp" )
 			for( var i = 0; i < $scope.rentalHousingMarkers.length; ++i )
 				if( $scope.rentalHousingMarkers[i].address === newValue )
 					$scope.direction.origin.marker = $scope.rentPositions[i];
+	} );
+
+	$scope.$watch( "precipitation", function( newValue, oldValue )
+	{
+		if( newValue !== null )
+			if( newValue <= 5 )
+				$scope.precipitationSrc = "assets/images/precipitation1.png";
+			else if( newValue > 5 && newValue <= 10 )
+				$scope.precipitationSrc = "assets/images/precipitation2.png";
+			else if( newValue > 10 && newValue <= 20 )
+				$scope.precipitationSrc = "assets/images/precipitation3.png";
+			else if( newValue > 20 && newValue <= 50 )
+				$scope.precipitationSrc = "assets/images/precipitation4.png";
+			else if( newValue > 50 && newValue <= 100 )
+				$scope.precipitationSrc = "assets/images/precipitation5.png";
+			else if( newValue > 100 )
+				$scope.precipitationSrc = "assets/images/precipitation6.png";
 	} );
 } );
