@@ -37,7 +37,7 @@
 </head>
 <body ng-controller = "MainController" ng-cloak>
 	<md-toolbar>
-		<div class = "md-toolbar-tools custom-background-color">
+		<div class = "md-toolbar-tools md-primary">
 			<md-button class = "md-icon-button" ng-click = "showFilters()" hide-gt-md>
 				<md-icon>menu</md-icon>
 			</md-button>
@@ -98,13 +98,16 @@
 						<h3>Historical precipitations</h3>
 						<md-input-container>
 							<label>Month</label>
-							<md-select ng-model = "precipitation">
+							<md-select ng-model = "precipitation" ng-change = "updatePrecipitation( precipitation )">
 								<md-option ng-repeat = "precipitationPerMonth in precipitationPerMonths" ng-value = "precipitationPerMonth.value">
 									{{ precipitationPerMonth.date }}
 								</md-option>
 							</md-select>
 						</md-input-container>
-						<h2 ng-show = "precipitation !== null">{{ precipitation }} mm</h2>
+						<div ng-show = "precipitation !== null" layout = "row">
+							<img ng-src = "{{ precipitationSrc }}" style = "height: 128px; width: 128px;"/>
+							<h2>{{ precipitation }} mm</h2>
+						</div>
 					</md-content>
 					<md-content layout = "row">
 						<md-content layout-align = "center center">

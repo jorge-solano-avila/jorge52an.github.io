@@ -18,9 +18,11 @@ angular.module( "RentApp" )
 	$scope.temperaturePerMonths = [];
 	$scope.temperatures = [];
 	$scope.temperature = null;
+	$scope.temperatureSrc = "";
 	$scope.precipitationPerMonths = [];
 	$scope.precipitations = [];
 	$scope.precipitation = null;
+	$scope.precipitationSrc = "";
 
 	$scope.travelModes = [{
 		model: "DRIVING",
@@ -534,11 +536,34 @@ angular.module( "RentApp" )
 		$scope.init = true;
 	}
 
+	$scope.updatePrecipitation = function( precipitation )
+	{
+		$scope.precipitation = precipitation;
+	}
+
 	$scope.$watch( "direction.origin.address", function( newValue, oldValue )
 	{
 		if( newValue !== "" )
 			for( var i = 0; i < $scope.rentalHousingMarkers.length; ++i )
 				if( $scope.rentalHousingMarkers[i].address === newValue )
 					$scope.direction.origin.marker = $scope.rentPositions[i];
+	} );
+
+	$scope.$watch( "precipitation", function( newValue, oldValue )
+	{
+		console.log( oldValue, newValue );
+		if( newValue !== null )
+			if( newValue <= 5 )
+				$scope.precipitationSrc = "assets/images/precipitation1.png";
+			else if( newValue > 5 && newValue <= 10 )
+				$scope.precipitationSrc = "assets/images/precipitation2.png";
+			else if( newValue > 10 && newValue <= 20 )
+				$scope.precipitationSrc = "assets/images/precipitation3.png";
+			else if( newValue > 20 && newValue <= 50 )
+				$scope.precipitationSrc = "assets/images/precipitation4.png";
+			else if( newValue > 50 && newValue <= 100 )
+				$scope.precipitationSrc = "assets/images/precipitation5.png";
+			else if( newValue > 100 )
+				$scope.precipitationSrc = "assets/images/precipitation6.png";
 	} );
 } );
